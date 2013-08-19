@@ -1,4 +1,4 @@
-function final = water3(imOrig,parray)
+function final = watershed_min_size(imOrig,parray)
 % WATER
 %    A segmentation program based on the algorithm of Zamir et al. (1999)
 %    JCS.  Also see Grashoff et al. (2010) Nature.
@@ -13,8 +13,9 @@ function final = water3(imOrig,parray)
 %   changed line 60 to line 61 so that it was not always a true statement
 %   added line 53 to reinitialize the int array for each iteration
 
-%   water3 uses parameter 1 as the average filter high_pass_filt_width to perform the
-%   highpass filtering and has no size restriction on the focal adhesions
+%   water3 uses parameter 1 as the average filter high_pass_filt_width to
+%   perform the highpass filtering and has no size restriction on the focal
+%   adhesions
 
 %% User Input
 
@@ -24,15 +25,21 @@ function final = water3(imOrig,parray)
 % mergeL = 4;      %critical patch size for merging
 
 tic;
-% areaL = parray(1);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Parameter Processing and Setup
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 high_pass_filt_width = parray(1);
 thresh = parray(2);
 mergeL = parray(3);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Program
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Image Loading and Prep. for Analysis
+%% Image Filtering and Prep. for Analysis
 
-% imOrig = double(imread(filePath)); %load image, convert to double format
 AvgFilt = fspecial('average',high_pass_filt_width);
 SmImg = filter2(AvgFilt,imOrig);
 FiltImg = double(imOrig) - SmImg;
@@ -42,12 +49,6 @@ im = FiltImg.*(FiltImg > thresh);      %threshold (should eliminate any negative
 %size, so add a layer of zeros to deal with that possibility. We will
 %remove the layer at the end of processing.
 mat = padarray(im, [1 1]);     %pads matrix with 0s on all sides
-
-% im_label = bwlabel(im > 0,8);
-% props = regionprops(im_label,'Area');
-% small_FA = ismember(im_label,find([props.Area] < mergeL*2));
-% labelMat = bwlabel(small_FA,8);
-% im(small_FA) = 0;
 
 [r,c,v] = find(mat);          %collect non-zero values [v] and their location [r,c]
 list = [r c v];               %pacakge output vectors into one matrix
@@ -79,13 +80,13 @@ for i = 1:size(list,1)
             %This bit of code finds the index in the patchList that has the
             %highest intensity, but only considers the patch numbers with
             %enough size to avoid being merged. This patch number is then
-            %merged/assigned to the current pixel or other adjacent
+            %merged/assigned to the current pixel and other adjacent small
             %patches.
             [~, brightest_large_patch_index] = max((sz >= mergeL) .* int);
             brightest_large_patch_num = patchList(brightest_large_patch_index);
             
-            doesnt_meet_size_nums = patchList(sz < mergeL);
-            for small_patch_num = doesnt_meet_size_nums'
+            doesnt_meet_size_indexes = patchList(sz < mergeL);
+            for small_patch_num = doesnt_meet_size_indexes'
                 labelMat(labelMat == small_patch_num) = brightest_large_patch_num;
             end
             labelMat(list(i,1),list(i,2)) = brightest_large_patch_num;
@@ -97,31 +98,22 @@ labelMat = sparse(labelMat);            %convert to sparse matrix format to incr
 patches = nonzeros(unique(labelMat));   %all patch numbers
 newNum = 1;                             %initialize new patch number assignments
 for j = 1:length(patches)
-%     ind = find(labelMat == patches(j)); %find indicies of the patch
-%     if length(ind) < areaL              %if patch is too small, remove
-%         labelMat(ind) = 0.1;            %set to 0.1 to preserve nonzero element structure of the sparse matrix
-%     else
         labelMat(labelMat == patches(j)) = newNum;         %else, re-number so there are no skipped patch numbers
         newNum = newNum+1;
-%     end
 end
 labelMat = floor(labelMat);             %set any 0.1 to 0
 labelMat = full(labelMat);              %convert back to full matrix format
 
-%% Output: Statistics and Images
-
 final = labelMat(2:(size(labelMat,1)-1), 2:(size(labelMat,2)-1)); %remove padding
 
-%stats = regionprops(labelMat, 'Area', 'MajorAxisLength', 'MinorAxisLength');
-
-rgb = label2rgb(final, 'jet', 'k', 'shuffle');
-figure
-subplot(1,2,1);
-imagesc(imOrig);
+% rgb = label2rgb(final, 'jet', 'k', 'shuffle');
+% figure
+% subplot(1,2,1);
+% imagesc(imOrig);
+% % axis image;
+% subplot(1,2,2);
+% imagesc(rgb);
 % axis image;
-subplot(1,2,2);
-imagesc(rgb);
-axis image;
 
 %imwrite(uint8(final),'sample images\test.tif','tif','compression','none');
 toc;
