@@ -1,4 +1,4 @@
-function fret_bledth(doaf,dodf,dofr,varargin)
+function fret_bledth(doa,dod,dof,varargin)
 % files = fret_bledth(doaf,dodf,dofr,param)
 % files = fret_bledth(doaf,dodf,dofr,baf,bdf,brd,param)
 % files = fret_bledth(doaf,dodf,dofr,baf,bdf,brd,aoaf,aodf,aofr,param)
@@ -113,14 +113,29 @@ daflag = 0;
 nps = nargin-1;
 param.bin = 1;
 
+doaf = file_search(doa,param.sourcefolder);
+dodf = file_search(dod,param.sourcefolder);
+dofr = file_search(dof,param.sourcefolder);
+
+if param.nobkgd && nps > 3
+    aoaf = file_search(varargin{1},param.sourcefolder);
+    aodf = file_search(varargin{2},param.sourcefolder);
+    aofr = file_search(varargin{3},param.sourcefolder);
+end
+
 % load files
 filecell = {'doafn','dodfn','dofrn','bafn','bdfn','bfrn','aoaxam','aodxdm','aodxam'};
 filenames = {doaf,dodf,dofr};
 ndoa = length(doaf);
 ndod = length(dodf);
 ndof = length(dofr);
-for i = 1:nps-3
-    filenames{i+3} = varargin{i};
+% for i = 1:nps-3
+%     filenames{i+3} = varargin{i};
+% end
+if param.nobkgd && nps > 3
+    filenames{4} = aoaf;
+    filenames{5} = aodf;
+    filenames{6} = aofr;
 end
 
 for i = 1:3
