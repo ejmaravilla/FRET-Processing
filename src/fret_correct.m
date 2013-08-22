@@ -1,4 +1,4 @@
-function fret_correct(af,df,fr,abtfn,dbtfn,varargin)
+function fret_correct(aexp,dexp,fexp,abtfn,dbtfn,varargin)
 % outputs = fret_correct(af,df,fr,abtfn,dbtfn,params)
 % outputs = fret_correct(af,df,fr,abtfn,dbtfn,baf,bdf,bfr,params)
 
@@ -123,6 +123,10 @@ else
     bkimg = 1;
 end
 
+af = file_search(aexp,param.sourcefolder);
+df = file_search(dexp,param.sourcefolder);
+fr = file_search(fexp,param.sourcefolder);
+
 % Check images found
 if isempty(af) == 0
     disp('WARNING, No Acceptor Images')
@@ -210,11 +214,11 @@ if nonl
 end
 
 if bkimg
-    baf = varargin{1};
+    baf = file_search(varargin{1},param.sourcefolder);
     nba = length(baf);
-    bdf = varargin{2};
+    bdf = file_search(varargin{2},param.sourcefolder);
     nbd = length(bdf);
-    bfr = varargin{3};
+    bfr = file_search(varargin{3},param.soucefolder);
     nbf = length(bfr);
     
     % Check background images found
