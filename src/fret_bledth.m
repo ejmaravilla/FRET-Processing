@@ -168,7 +168,8 @@ if ~param.nobkgd && nps >= 6
     dxamb = tot3/nbf;
 elseif nps >= 6 && param.nobkgd
     for i = 1:3 % read in 4-6 as ao
-        for j = 1:length(varargin{1})
+%         for j = 1:length(varargin{1})
+        for j = 1:length(aoaf)
             %             eval(sprintf('%s{j} = double(imread(''%s''));',filecell{i+6},filenames{i+6}{j}))
             eval(sprintf('%s{j} = double(imread(''%s''));',filecell{i+6},filenames{i+3}{j}))
         end
