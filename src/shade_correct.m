@@ -30,14 +30,10 @@ sf = fit([x,y],z,'poly22');
 Z = feval(sf,[x,y]);
 bsurf = reshape(Z,r,c);
 bnorm = bsurf./max(max(bsurf));
-% plot3(X,Y,bnorm)
-% imwrite2tif(bnorm,[],[folder '\Shade_TVFRET.tif'],'uint16');
 
 sfiles = file_search(sampexp,folder);
 for i = 1:length(sfiles)
     s = double(imread(sfiles{i}));
-    s(s >= (2^16-1)) = -1;
     snew = s./bnorm;
-%     snew = (2^16).*(snew - min(min(snew)))./(max(max(snew))-min(min(snew)));
-    imwrite2tif(snew,[],[folder '\sc_' sfiles{i}],'uint16');
+    imwrite2tif(snew,[],fullfile(folder,['sc_' sfiles{i}]),'single');
 end
