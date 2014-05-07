@@ -27,16 +27,13 @@ function imgo = bs_ff(imgo,varargin)
 nps = nargin-1;
 nozero = varargin{nps}.nozero;
 bin = varargin{nps}.bin;
-[r c] = size(imgo);
 
 if nozero
     if nps == 2
         imgo=imgo-varargin{1};
     else
-%         w=find(imgo >= 0);
         data=mode(floor(imgo(imgo >= 0)./bin))*bin;
         mx=max(data);
-%         w=find(data(:,2) == mx);
         bkg=floor(data(data == mx));
         imgo=imgo-bkg(1);
     end
@@ -44,10 +41,8 @@ else
     if nps == 2
         imgo = (imgo-varargin{1}).*((imgo-varargin{1})>0);
     else
-%         w=find(imgo >= 0);
         data=mode(floor(imgo(imgo >= 0)./bin))*bin;
         mx=max(data);
-%         w = find(data(:,2)==mx);
         bkg=floor(data(data == mx));
         imgo = (imgo-bkg).*((imgo-bkg)>0);
     end
