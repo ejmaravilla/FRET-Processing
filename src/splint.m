@@ -1,5 +1,5 @@
 function yout = splint(xa,ya,y2a,x)
-% a sline interpolation function based on section 3.3 of Numerical Recipes
+% a spline interpolation function based on section 3.3 of Numerical Recipes
 % in C: The Art of Scientific Computing (Second Edition), published by Cambridge University Press
 
 klo = int32(1);
