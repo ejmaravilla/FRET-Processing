@@ -1,11 +1,11 @@
 function y2 = spl_init_k(x,y,varargin)
 
 % FIRST MAKE SURE THEY ARE ROW VECTORS
-[r c] = size(x);
+[r,c] = size(x);
 if c ==1
     x = x';
 end
-[r c] = size(y);
+[r,c] = size(y);
 if c ==1
     y = y';
 end
