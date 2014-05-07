@@ -2,7 +2,7 @@ function derivee = deriv_k(varargin)
 
 if nargin == 1
     x = varargin{1};
-    [r c] = size(x);
+    [r,c] = size(x);
     if c ==1
         x = x';
     end
@@ -13,12 +13,12 @@ if nargin == 1
     derivee = derivee./2';
 else
     x = varargin{1};
-    [r c] = size(x);
+    [r,c] = size(x);
     if c ==1
         x = x';
     end
     y = varargin{2};
-    [r c] = size(y);
+    [r,c] = size(y);
     if c ==1
         y = y';
     end
