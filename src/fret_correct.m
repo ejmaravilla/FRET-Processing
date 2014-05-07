@@ -94,13 +94,6 @@ function fret_correct(aexp,dexp,fexp,abtfn,dbtfn,varargin)
 
 %--------------------------------------------------------------------------
 
-% Structure for tiff writing
-tagstruct.Photometric = 1;
-tagstruct.PlanarConfiguration = 1;
-tagstruct.Compression= 1;
-tagstruct.BitsPerSample = 32;
-tagstruct.SampleFormat = 3;
-
 param = varargin{end};
 if ~isfield(param,'bit')
     param.bit = 12;
@@ -128,13 +121,13 @@ df = file_search(dexp,param.sourcefolder);
 fr = file_search(fexp,param.sourcefolder);
 
 % Check images found
-if isempty(af) == 0
+if isempty(af)
     disp('WARNING, No Acceptor Images')
 end
-if isempty(df) == 0
+if isempty(df)
     disp('WARNING, No Donor Images')
 end
-if isempty(fr) == 0
+if isempty(fr)
     disp('WARNING, No FRET Images')
 end
 
@@ -159,8 +152,6 @@ else
 end
 
 if lin
-    %     actflag = 1;
-    %     dctflag = 1;
     abt = double(abtfn{1});
     dbt = double(dbtfn{1});
     act = double(param.actfn);
@@ -179,9 +170,7 @@ if nonl
     end
     for i = 1:ndbt
         sdbt{i} = load([dbtfn{i} '.dat']);  %#ok<AGROW>
-        %         sdbt{i} = read_gdf([dbtfn{i}]);
         sabt{i} = load([abtfn{i} '.dat']); %#ok<AGROW>
-        %         sabt{i} = read_gdf([abtfn{i}]);
     end
     if param.dctfn
         for i = 1:length(param.dctfn)
@@ -248,20 +237,10 @@ if bkimg
         tot = tot + double(imread(baf{i}));
     end
     axamb = tot./nba;
-    tagstruct.ImageWidth = size(axamb,2);
-    tagstruct.ImageLength = size(axamb,1);
     if isfield(param,'outname')
-        t = Tiff([pwd '/' param.destfolder '/axamb_' param.outname], 'w');
-        t.setTag(tagstruct);
-        t.write(single(axamb));
-        t.close();
-        %         imwrite(uint8(axamb),['axamb_' param.outname '.tif'],'tif')
+        imwrite2tif(axamb,[],fullfile(pwd,param.destfolder,['axamb_' param.outname]),'single')
     else
-        t = Tiff([pwd '/' param.destfolder '/axamb'], 'w');
-        t.setTag(tagstruct);
-        t.write(single(axamb));
-        t.close();
-        %         imwrite(uint8(axamb),'axamb.tif','tif')
+        imwrite2tif(axamb,[],fullfile(pwd,param.destfolder,'axamb'),'single')
     end
     
     tot2 = 0;
@@ -270,18 +249,9 @@ if bkimg
     end
     dxdmb = tot2./nbd;
     if isfield(param,'outname')
-        % Change this writing to the float tiff writing
-        t = Tiff([pwd '/' param.destfolder '/dxdmb_' param.outname], 'w');
-        t.setTag(tagstruct);
-        t.write(single(dxdmb));
-        t.close();
-        %         imwrite(uint8(dxdmb),['dxdmb_' param.outname '.tif'],'tif')
+        imwrite2tif(dxdmb,[],fullfile(pwd,param.destfolder,['dxdmb_' param.outname]),'single')
     else
-        t = Tiff([pwd '/' param.destfolder '/dxdmb'], 'w');
-        t.setTag(tagstruct);
-        t.write(single(dxdmb));
-        t.close();
-        %         imwrite(uint8(dxdmb),'dxdmb.tif','tif')
+        imwrite2tif(dxdmb,[],fullfile(pwd,param.destfolder,'dxdmb'),'single')
     end
     
     tot3 = 0;
@@ -290,17 +260,9 @@ if bkimg
     end
     dxamb = tot3./nbf;
     if isfield(param,'outname')
-        t = Tiff([pwd '/' param.destfolder '/dxamb_' param.outname], 'w');
-        t.setTag(tagstruct);
-        t.write(single(dxamb));
-        t.close();
-        %         imwrite(uint8(dxamb),['dxamb_' param.outname '.tif'],'tif')
+        imwrite2tif(dxamb,[],fullfile(pwd,param.destfolder,['dxamb_' param.outname]),'single')
     else
-        t = Tiff([pwd '/' param.destfolder '/dxamb'], 'w');
-        t.setTag(tagstruct);
-        t.write(single(dxamb));
-        t.close();
-        %         imwrite(uint8(dxamb),'dxamb.tif','tif')
+        imwrite2tif(dxamb,[],fullfile(pwd,param.destfolder,'dxamb'),'single')
     end
 end
 
@@ -309,9 +271,6 @@ for i = 1:length(df)
     axam = double(imread(af{i}));
     dxdm = double(imread(df{i}));
     dxam = double(imread(fr{i}));
-    
-    tagstruct.ImageWidth = size(axam,2);
-    tagstruct.ImageLength = size(axam,1);
     
     % Optionally align images
     if isfield(param,'range')
@@ -325,9 +284,7 @@ for i = 1:length(df)
             fprintf('%.2f\n',fr{i})
             fprintf('range maximum reached, re-run with larger range\n')
         end
-        %         dxdm = shift(dxdm,ds(1),ds(2));
-        dxdm = circshift(dxdm,[dx(1) ds(2)]); % might have to switch order because of dimensions
-        %         axam = shift(axam,as(1),as(2));
+        dxdm = circshift(dxdm,[dx(1) ds(2)]);
         axam = circshift(axam,[as(1) as(2)]);
     end
     [axam, dxdm, dxam] = deover(axam,dxdm,dxam,param.bit);
@@ -377,11 +334,9 @@ for i = 1:length(df)
         
         if all(sabt{1}~=0)
             abt(w) = spline_intrp(sabt{1},ai);
-            %         abt(w) = spline(sabt{1}(:,1),sabt{1}(:,2),ai);
         end
         if all(sdbt{1}~=0)
             dbt(w) = spline_intrp(sdbt{1},di);
-            %         dbt(w) = spline(sdbt{1}(:,1),sdbt{1}(:,2),di);
         end
         
         % Make corrections
@@ -392,8 +347,7 @@ for i = 1:length(df)
         if ~isfield(param,'leave_neg')
             fc(fc < 0) = 0;
         end
-        
-        % eliminated all_cor portion
+
     end
     
     nafc = norm_fret(fc,iaa);
@@ -411,68 +365,39 @@ for i = 1:length(df)
     if (not(exist(target_folder,'dir')))
         mkdir(target_folder);
     end
-    t = Tiff([pwd '/' param.destfolder '/c' nfrn], 'w');
-    t.setTag(tagstruct);
-    t.write(single(fc));
-    t.close();
+    imwrite2tif(fc,[],fullfile(pwd,param.destfolder,['c' nfrn]),'single')
     
     target_folder = fileparts([pwd '/' param.destfolder '/cna' nfrn]);
     if (not(exist(target_folder,'dir')))
         mkdir(target_folder);
     end
-    t = Tiff([pwd '/' param.destfolder '/cna' nfrn],'w');
-    t.setTag(tagstruct);
-    t.write(single(nafc));
-    t.close();
-    
+    imwrite2tif(nafc,[],fullfile(pwd,param.destfolder,['cna' nfrn]),'single')
+
     if param.donor_norm
         ndfc = norm_fret(fc,idd);
-        t = Tiff([pwd '/' param.destfolder '/cnd' nfrn],'w');
-        t.setTag(tagstruct)
-        t.write(single(ndfc));
-        t.close();
+        imwrite2tif(ndfc,fullfile(pwd,param.destfolder,['cnd' nfrn]),'single')
     end
     if param.double_norm
         nandfc = norm_fret(fc,iaa,idd);
-        t = Tiff([pwd '/' param.destfolder '/cnand' nfrn],'w');
-        t.setTag(tagstruct)
-        t.write(single(nandfc));
-        t.close();
-        %         imwrite(nandfc,['cnand' nfrn ],'tif')
+        imwrite2tif(nandfc,fullfile(pwd,param.destfolder,['cnand' nfrn]),'single')
     end
     
     if param.ocimg
         if bkimg
-            t = Tiff([pwd '/' param.destfolder '/bsffd' ndfn],'w');
-            t.setTag(tagstruct);
-            t.write(single(idd));
-            t.close();
-            % imwrite(idd,['bsffd' ndfn ],'tif')
-            t = Tiff([pwd '/' param.destfolder '/bsffa' nafn],'w');
-            t.setTag(tagstruct);
-            t.write(single(iaa));
-            t.close();
-            %             imwrite(iaa,['bsffa' nafn ],'tif')
+            imwrite2tif(idd,[],fullfile(pwd,param.destfolder,['bsffd' ndfn]),'single')
+            imwrite2tif(iaa,[],fullfile(pwd,param.destfolder,['bsffa' nafn]),'single')
         else
             target_folder = fileparts([pwd '/' param.destfolder '/bsd' ndfn]);
             if (not(exist(target_folder,'dir')))
                 mkdir(target_folder);
             end
-            t = Tiff([pwd '/' param.destfolder '/bsd' ndfn],'w');
-            t.setTag(tagstruct);
-            t.write(single(idd));
-            t.close();
-            %             imwrite(idd,['bsd' ndfn],'tif')
+            imwrite2tif(idd,[],fullfile(pwd,param.destfolder,['bsd' ndfn]),'single')
             
             target_folder = fileparts([pwd '/' param.destfolder '/bsa' nafn]);
             if (not(exist(target_folder,'dir')))
                 mkdir(target_folder);
             end
-            t = Tiff([pwd '/' param.destfolder '/bsa' nafn],'w');
-            t.setTag(tagstruct);
-            t.write(single(iaa));
-            t.close();
-            %             imwrite(iaa,['bsa' nafn ],'tif')
+            imwrite2tif(iaa,[],fullfile(pwd,param.destfolder,['bsa' nafn]),'single')
         end
     end
     
@@ -504,7 +429,7 @@ temp2 = reshape(fi,1,nele2);
 for i=1:nele
     for j=1:nele
         temp=reshape(circshift(img,[v(i) v(j)]),1,nele2);
-        [r p]=corrcoef(temp,temp2);
+        [r,p]=corrcoef(temp,temp2);
         c=r(1,2);
         if c >= cstr
             cstr=c;
@@ -534,21 +459,18 @@ elseif n_params == 3
     ntemp=n;
     ntemp2=n2;
     wnz=find(n ~= 0 & n2 ~= 0);
-    wz1=find(n == 0);
-    wz2=find(n2 == 0);
     ftemp(wnz)=ftemp(wnz)./(ntemp(wnz).*ntemp2(wnz));
-    ftemp(wz1)=0;
-    ftemp(wz2)=0;
+    ftemp(n == 0)=0;
+    ftemp(n2 == 0)=0;
 end
 end
 
-function [a b c] = deunder(a,b,c,thres)
+function [a,b,c] = deunder(a,b,c,thres)
 % Identify pixels less than a certain value. If any of the pixels in a
 % single image is less than the threshold, the pixel will be set to zero in
 % all images
 
 w=find(a < thres(1) | b < thres(2) | c < thres(3));
-%w=find(a < thres or b < thres)
 if ~isempty(w)
     a(w)=0;
     b(w)=0;
@@ -557,16 +479,14 @@ end
 end
 
 function res = spline_intrp(cor,img)
-% % Calculate 2nd derivative by hand b/c more stable than spl_int. Also
-% % spl_interp requires X variables be in ascending order
-%
+% Calculate 2nd derivative by hand b/c more stable than spl_int. Also
+% spl_interp requires X variables be in ascending order
 
 x = sort(cor(:,1));
-[x u] = unique(x);
+[x,u] = unique(x);
 y = cor(:,2);
 y = y(u);
-% d2 = spl_init_k(x,y);
-% TEST:
+
 if max(img) > max(x)
     x = [x; max(img)];
     y = [y; y(end)];
@@ -576,15 +496,5 @@ d = deriv_k(x,y);
 d2 = deriv_k(x,d);
 res = spl_interp_k(x,y,d2,img);
 
-% x = unique(squeeze(cor(:,1)));
-% s = [];
-% for j = 1:numel(x)
-%     vals = find(x(j) == squeeze(cor(:,1)));
-%     s = [s; vals(1)];
-% end
-% y = squeeze(cor(s,2));
-% res = spline(x,y,img);
-
-%
 end
 
