@@ -8,11 +8,11 @@ for i = 1:length(files)
     base = files{i}(8:scores(end));
     cna = single(imread(['cna_' base 'w2TVFRET.TIF']));
     mcna = m.*cna;
-    imwrite2tif(mcna,[],[folder '\masked_cna_' base 'w2TVFRET.TIF'],'single')
+    imwrite2tif(mcna,[],fullfile(folder,['cna_masked_' base 'w2TVFRET.TIF']),'single')
     bsa = single(imread(['bsa_' base 'w1Venus.TIF']));
     mbsa = m.*bsa;
-    imwrite2tif(mbsa,[],[folder '\masked_bsa_' base 'w1Venus.TIF'],'single')
+    imwrite2tif(mbsa,[],fullfile(folder,['bsa_masked_' base 'w1Venus.TIF']),'single')
     bsd = single(imread(['bsd_' base 'w3Teal.TIF']));
     mbsd = m.*bsd;
-    imwrite2tif(mbsd,[],[folder '\masked_bsd_' base 'w3Teal.TIF'],'single')
+    imwrite2tif(mbsd,[],fullfile(folder,['bsd_masked_' base 'w3Teal.TIF']),'single')
 end
