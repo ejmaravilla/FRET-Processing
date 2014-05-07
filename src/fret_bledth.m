@@ -1,4 +1,4 @@
-function fret_bledth(doa,dod,dof,varargin)
+function [abt,dbt] = fret_bledth(doa,dod,dof,varargin)
 % files = fret_bledth(doaf,dodf,dofr,param)
 % files = fret_bledth(doaf,dodf,dofr,baf,bdf,brd,param)
 % files = fret_bledth(doaf,dodf,dofr,baf,bdf,brd,aoaf,aodf,aofr,param)
@@ -104,8 +104,6 @@ if ~isfield(param,'npnts')
 end
 if ~isfield(param,'avg')
     param.avg = 1;
-    % else
-    %     param.avg = double(param.avg);
 end
 
 param.npnts = double(param.npnts);
@@ -129,9 +127,7 @@ filenames = {doaf,dodf,dofr};
 ndoa = length(doaf);
 ndod = length(dodf);
 ndof = length(dofr);
-% for i = 1:nps-3
-%     filenames{i+3} = varargin{i};
-% end
+
 if param.nobkgd && nps > 3
     filenames{4} = aoaf;
     filenames{5} = aodf;
@@ -168,9 +164,7 @@ if ~param.nobkgd && nps >= 6
     dxamb = tot3/nbf;
 elseif nps >= 6 && param.nobkgd
     for i = 1:3 % read in 4-6 as ao
-%         for j = 1:length(varargin{1})
         for j = 1:length(aoaf)
-            %             eval(sprintf('%s{j} = double(imread(''%s''));',filecell{i+6},filenames{i+6}{j}))
             eval(sprintf('%s{j} = double(imread(''%s''));',filecell{i+6},filenames{i+3}{j}))
         end
     end
@@ -215,45 +209,28 @@ for i=1:ndoa
         daa = lister(doaxam{i},wdo,i,daa);
     end
     % Structure for tiff writing
-    tagstruct.Photometric = 1;
-    tagstruct.PlanarConfiguration = 1;
-    tagstruct.Compression= 1;
-    tagstruct.BitsPerSample = 32;
-    tagstruct.SampleFormat = 3;
-    
-    tagstruct.ImageWidth = size(dodxdm,2);
-    tagstruct.ImageLength = size(dodxdm,1);
     % write files if requested
     if param.ocimg
         if param.nobkgd
-            t = Tiff([pwd '/' param.destfolder '/bs' dodfn{i}], 'w');
-            t.setTag(tagstruct);
-            t.write(single(dodxdm));
-            t.close();
-            %             imwrite([pwd '/' param.destfolder '/bs' dodfn{i}],dodxdm,'tif');
-            t = Tiff([pwd '/' param.destfolder '/bs' doafn{i}], 'w');
-            t.setTag(tagstruct);
-            t.write(single(doaxam));
-            t.close();
-            %             imwrite([pwd '/' param.destfolder '/bs' doafn{i}],doaxam,'tif');
-            t = Tiff([pwd '/' param.destfolder '/bs' dofrn{i}], 'w');
-            t.setTag(tagstruct);
-            t.write(single(dodxam));
-            t.close();
-            %             imwrite([pwd '/' param.destfolder '/bs' dofrn{i}],dodxam,'tif');
+            imwrite2tif(dodxdm,[],fullfile(pwd,param.destfolder,['bs' dodfn{i}]),'single')
+            imwrite2tif(dodxdm,[],fullfile(pwd,param.destfolder,['bs' doafn{i}]),'single')
+            imwrite2tif(dodxdm,[],fullfile(pwd,param.destfolder,['bs' dofrn{i}]),'single')
         else
-            imwrite([pwd '/' param.destfolder '/bsff' dodfn{i}],dodxdm,'tif');
-            imwrite([pwd '/' param.destfolder '/bsff' doafn{i}],doaxam,'tif');
-            imwrite([pwd '/' param.destfolder '/bsff' dofrn{i}],dodxam,'tif');
+            imwrite2tif(dodxdm,[],fullfile(pwd,param.destfolder,['bsff' dodfn{i}]),'single')
+            imwrite2tif(dodxdm,[],fullfile(pwd,param.destfolder,['bsff' doafn{i}]),'single')
+            imwrite2tif(dodxdm,[],fullfile(pwd,param.destfolder,['bsff' dofrn{i}]),'single')
         end
         
     end
 end
 
+aoaxam = cell(1,length(aoaxam));
+aodxam = cell(1,length(aoaxam));
+aodxdm = cell(1,length(aoaxam));
 if daflag
     for i = 1:length(aoaxam)
         % do flatfielding and background subtraction
-        [aoaxam{i} aodxdm{i} aodxam{i}] = deover(aoaxam{i},aodxdm{i},aodxam{i},param.bit);
+        [aoaxam{i},aodxdm{i},aodxam{i}] = deover(aoaxam{i},aodxdm{i},aodxam{i},param.bit);
         if nps == 9 && ~param.nobkgd
             aodxdm{i} = bs_ff(aodxdm{i},dxdmb,param);
             aodxam{i} = bs_ff(aodxam{i},dxamb,param);
@@ -279,13 +256,13 @@ if daflag
         
         if param.ocimg
             if param.nobkgd
-                imwrite([pwd '/' param.destfolder '/bs' aodfn{i}],aodxdm,'tif');
-                imwrite([pwd '/' param.destfolder '/bs' aoafn{i}],aoaxam,'tif');
-                imwrite([pwd '/' param.destfolder '/bs' aofrn{i}],aodxam,'tif');
+                imwrite2tif(aodxdm,[],fullfile(pwd,param.destfolder,['bs' aodfn{i}]),'single')
+                imwrite2tif(aoaxdm,[],fullfile(pwd,param.destfolder,['bs' aoafn{i}]),'single')
+                imwrite2tif(aodxam,[],fullfile(pwd,param.destfolder,['bs' aofrn{i}]),'single')
             else
-                imwrite([pwd '/' param.destfolder '/bsff' aodfn{i}],aodxdm,'tif');
-                imwrite([pwd '/' param.destfolder '/bsff' aoafn{i}],aoaxam,'tif');
-                imwrite([pwd '/' param.destfolder '/bsff' aofrn{i}],aodxam,'tif');
+                imwrite2tif(aodxdm,[],fullfile(pwd,param.destfolder,['bsff' aodfn{i}]),'single')
+                imwrite2tif(aoaxdm,[],fullfile(pwd,param.destfolder,['bsff' aodfn{i}]),'single')
+                imwrite2tif(aodxam,[],fullfile(pwd,param.destfolder,['bsff' aodfn{i}]),'single')
             end
         end
         
@@ -296,10 +273,10 @@ else
     add = [0 0];
 end
 
-[ldbt mddd mdda] = fit_samp(ddd,dda,param.avg);
-[labt maaa mada] = fit_samp(aaa,ada,param.avg);
-[ldct mddd mdaa] = fit_samp(ddd,daa,param.avg);
-[lact maaa madd] = fit_samp(aaa,add,param.avg);
+[ldbt,mddd,mdda] = fit_samp(ddd,dda,param.avg);
+[labt,maaa,mada] = fit_samp(aaa,ada,param.avg);
+[ldct,mddd,mdaa] = fit_samp(ddd,daa,param.avg);
+[lact,maaa,madd] = fit_samp(aaa,add,param.avg);
 
 xmax = max([mddd , maaa]);
 plot(mddd,mdda./mddd,'o') % donor bleed-through
@@ -317,25 +294,21 @@ plot([0 2^param.bit],[lact(1) lact(1)],'r')
 if max(mddd) > 0 && max(mdda) > 0
     nldbt = smooth_table(mddd,mdda,param.width,param.npnts);
 else
-    %     nldbt = [0 0];
     nldbt = zeros(5,2);
 end
 if max(maaa) > 0 && max(mada) > 0
     nlabt = smooth_table(maaa,mada,param.width,param.npnts);
 else
-    %     nlabt = [0 0];
     nlabt = zeros(5,2);
 end
 if max(mddd) > 0 && max(mdaa) > 0
     nldct = smooth_table(mddd,mdaa,param.width,param.npnts);
 else
-    %     nldct = [0 0];
     nldct = zeros(5,2);
 end
 if max(maaa) > 0 && max(madd) > 0
     nlact = smooth_table(maaa,madd,param.width,param.npnts);
 else
-    %     nlact = [0 0];
     nlact = zeros(5,2);
 end
 
@@ -348,38 +321,40 @@ if nps <= 6 && ~daflag
 end
 if daflag
     fprintf('The donor bleed-through into the FRET channel is: %.2f\n',ldbt(1))
+    dbt = ldbt(1);
     fprintf('The acceptor bleed-through into the FRET channel is: %.2f\n',labt(1))
+    abt = labt(1);
     fprintf('The donor crosstalk into acceptor channel is: %.2f\n',ldct(1))
     fprintf('The acceptor crosstalk into donor channel is: %.2f\n',lact(1))
 end
 
 if ~isfield(param,'pf')
     if isfield(param,'outname')
-        save([pwd '\' param.destfolder '\nlabt_' param.outname '.dat'],'nlabt','-ascii')
-        save([pwd '\' param.destfolder '\nldbt_' param.outname '.dat'],'nldbt','-ascii')
-        save([pwd '\' param.destfolder '\nlact_' param.outname '.dat'],'nlact','-ascii')
-        save([pwd '\' param.destfolder '\nldct_' param.outname '.dat'],'nldct','-ascii')
+        save(fullfile(pwd,param.destfolder,['\nlabt_' param.outname '.dat']),'nlabt','-ascii')
+        save(fullfile(pwd,param.destfolder,['\nldbt_' param.outname '.dat']),'nldbt','-ascii')
+        save(fullfile(pwd,param.destfolder,['\nlact_' param.outname '.dat']),'nlact','-ascii')
+        save(fullfile(pwd,param.destfolder,['\nldct_' param.outname '.dat']),'nldct','-ascii')
     else
-        save([pwd '\' param.destfolder '\nlabt.dat'],'nlabt','-ascii')
-        save([pwd '\' param.destfolder '\nldbt.dat'],'nldbt','-ascii')
-        save([pwd '\' param.destfolder '\nlact.dat'],'nlact','-ascii')
-        save([pwd '\' param.destfolder '\nldct.dat'],'nldct','-ascii')
+        save(fullfile(pwd,param.destfolder,'nlabt.dat'),'nlabt','-ascii')
+        save(fullfile(pwd,param.destfolder,'nldbt.dat'),'nldbt','-ascii')
+        save(fullfile(pwd,param.destfolder,'nlact.dat'),'nlact','-ascii')
+        save(fullfile(pwd,param.destfolder,'nldct.dat'),'nldct','-ascii')
     end
 else
     if ~isfield(param,'outname')
         param.outname = ' ';
         nele = length(param.pf);
         if nele >= 1
-            save([pwd '\' param.destfolder '\' param.pf(1) '_' param.outname],'nldbt','-ascii')
+            save(fullfile(pwd,param.destfodler,[param.pf(1) '_' param.outname]),'nldbt','-ascii')
         end
         if nele >= 2
-            save([pwd '\' param.destfolder '\' param.pf(2) '_' param.outname],'nldct','-ascii')
+            save(fullfile(pwd,param.destfodler,[param.pf(2) '_' param.outname]),'nldct','-ascii')
         end
         if nele >= 3
-            save([pwd '\' param.destfolder '\' param.pf(3) '_' param.outname],'nlabt','-ascii')
+            save(fullfile(pwd,param.destfodler,[param.pf(3) '_' param.outname]),'nlabt','-ascii')
         end
         if nele >= 4
-            save([pwd '\' param.destfolder '\' param.pf(4) '_' param.outname],'nlact','-ascii')
+            save(fullfile(pwd,param.destfodler,[param.pf(4) '_' param.outname]),'nlact','-ascii')
         end
     end
 end
@@ -408,22 +383,14 @@ end
 
 end
 
-function [res xm ym] = fit_samp(x,y,avg)
+function [res,xm,ym] = fit_samp(x,y,avg)
 % program to optionally bit, fit, and smooth data
 
-% thres=1e7;
-% nele=length(x);
-% if nele > thres
-%     rp=round(rand(1,1e6))*(nele-1)+1;
-%     x=x(rp);
-%     y=y(rp);
-% end
-% mx=max(x);
 
 if sum(x+y) > 0
     %This is just a quick way to bin by size avg
     x2=round(x./avg);
-    [un s] = unique(x2);
+    [un,s] = unique(x2);
     %     xm = x2(s).*avg;
     %     ym = y(s);
     s = [];
@@ -433,7 +400,7 @@ if sum(x+y) > 0
     
     x2 = x2(s)*avg;
     y2 = y(s);
-    [trash u]=unique(x2);
+    [trash,u]=unique(x2);
     nele=length(u);
     xm=zeros(1,nele);
     ym=zeros(1,nele);
@@ -454,18 +421,8 @@ if sum(x+y) > 0
             end
         else
             n=u(i)-(u(i-1)+1);
-            %             if n >= 3
             xm(i)=mean(x2(u(i-1)+1:u(i)));
             ym(i)=mean(y2(u(i-1)+1:u(i)));
-            %             end
-            %             if n == 1
-            %                 xm(i)=x2(u(i-1)+1);
-            %                 ym(i)=y2(u(i-1)+1);
-            %             end
-            %             if n == 2
-            %                 xm(i)=sum(x2(u(i-1)+1:u(i)))/double(2);
-            %                 ym(i)=sum(y2(u(i-1)+1:u(i)))/double(2);
-            %             end
         end
     end
     res=polyfit(xm,ym,1);
@@ -478,7 +435,7 @@ end
 
 function res = smooth_table(tx,ty,width,npnts)
 % program to smooth data
-[x i]=sort(tx);
+[x,i]=sort(tx);
 y=ty(i);
 
 w=find(x ~= 0 & y ~= 0);
@@ -486,22 +443,13 @@ x=x(w);
 y=y(w);
 f=y./x;
 
-% sp = fnplt(cscvn([x;f]));
-% spx = sp(1,:);
-% spx = linspace(x(1),x(end),length(x)*9);
-% % TESTING:
-% table = read_gdf('nldbt.093008mem_Kos_GFP_Cherry');
-% spx = table(:,1);
-% spf = sp(2,:);
-% spf = spline(x,f,spx);
-[spx spf] = spline_p_k(x,f);
+[spx,spf] = spline_p_k(x,f);
 sf = smooth(spf,width);
 
 nele=length(sf);
 del=(nele/npnts);
 if del >= 1
     vec=floor((1:npnts)*del);
-    % res = [spx(vec); spf(vec)]';
     res = [spx(vec) ;sf(vec)']';
 else
 end
