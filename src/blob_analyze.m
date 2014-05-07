@@ -1,4 +1,65 @@
-function blob_analyze2(bases,keywords)
+function blob_analyze(bases,keywords)
+
+% A function to analyze the same blobs across images from different
+% channels using a provided mask.
+% Inputs:
+%   bases - a cell array containing regular expressions representing each
+%   image channel that you would like to analyze separated by commas, with
+%   the last one being the regular expression for the masks (can use the
+%   results of fa_gen)
+%   keywords - a structure containing necessary parameters
+%       keywords.folder - name of the folder where images are contained
+%       keywords.sizemin - a threshold for size under which you will ignore blobs (usually set to 15 for focal adhesions)
+%       keywords.sizemax - a threshold for size over which you will ignore blobs (usually set to 10000 for focal adhesions)
+%       keywords.outname - what you would like to name your output file
+% Outputs:
+%   blb file
+%       A txt file beginning with blb_anl_ that stores a bunch of data
+%       calculated. Each row is a different blob and each column is a
+%       calculated value. N represents the number of image channels input.
+%           Col 1 - x position of blob
+%           Col 2 - y position of blob
+%           Col 3:N*2+1 - average intensity of channels
+%           Col 4:N*2+2 - standard deviation of channels
+%           Col N*2+3 - size of blob in pixels
+%           Col N*2+4 - major axis/minor axis of ellipse fit
+%           Col N*2+5 - orientation in radians of ellipse fit
+%           Col N*2+6 - blob identification number (from water)
+%           Col N*2+7 - frame/image number
+%   tavg file
+%       A txt file beginning with tavg_ that averages parameters across
+%       each frame/image number. Each row is a different frame/image and
+%       each column is the mean of the calculated values from blb file. N
+%       represents the number of image channels input.
+%           Col 1 - image/frame number
+%           Col 2:N*2 - average intensity of channels in an image/frame
+%           Col 3:N*2+1 - standard deviation of intensities in an image/frame
+%           Col N*2+2 - average size of blob in an image/frame
+%           Col N*2+3 - average axis ratio in an image/frame
+%           Col N*2+4 - average orientation in an image/frame
+%           Col N*2+5 - number of blobs in an image/frame
+%   avg images
+%       A set of images beginning with avg_ that are the masked input
+%       images with the values contained in each blob averaged together to
+%       create a mean intensity for each blob.
+% Sample Call:
+%   keywords.sizemin = 15;
+%   keywords.sizemax = 10000;
+%   keywords.folder = 'Stain 101513';
+%   keywords.outname = fullfile(pwd,keywords.folder,'VTP Stain 101513');
+%   blob_analyze({'Vinculin_\d+_w1FW FITC.TIF','Talin_\d+_w2FW Cy5.TIF','Paxillin_\d+_w3FW TR.TIF','fa_Vinculin_\d+_w1FW FITC.TIF'},keywords)
+%   This applies the masks of the form fa_Vinculin_\d+_w1FW FITC.TIF to the
+%   three image channels (Vinculin, Talin, Paxillin), all found in the
+%   folder Stain 101513. It only looks at blobs of 15<size<10000. It will
+%   output two text files: blb_VTP Stain 101513.txt and tavg_VTP Stain 101513.txt
+%   along with a set of images starting with avg_
+% Required Functions:
+%   file_search
+%   imwrite2tif
+%
+% This code 'blob_analyze' should be considered 'freeware' and may be
+% distributed freely (outside of the military-industrial complex) in its
+% original form when properly attributed.
 
 imgn = imgn_check(bases,keywords.folder);
 
@@ -14,7 +75,6 @@ orstr = resind+3;
 idstr = resind+4;
 tstr = resind+5;
 
-% NOT CORRECT INDEXING!!
 colvec = [3:2:resind,resind+1:resind+3];
 nvec = length(colvec);
 
@@ -32,6 +92,7 @@ for i = 1:nt
     [~,u] = unique(sbimg);
     del = u-circshift(u,1);
     wbe = find(del > keywords.sizemin & del < keywords.sizemax); % find large enough blobs
+    wbe = wbe-1;
     lim = length(wbe);
     
     for j = 1:lim
@@ -101,18 +162,8 @@ for i = 1:nt
         end
     end
     for k = 1:nch-1
-        name = [keywords.folder '\avg_' imgn{i,k}];
-        tagstruct.Photometric = 1;
-        tagstruct.PlanarConfiguration = 1;
-        tagstruct.Compression= 1;
-        tagstruct.BitsPerSample = 32;
-        tagstruct.SampleFormat = 3;
-        tagstruct.ImageWidth = dims(2);
-        tagstruct.ImageLength = dims(1);
-        t = Tiff(name, 'w');
-        t.setTag(tagstruct);
-        t.write(single(starr(:,:,k)));
-        t.close();
+        name = fullfile(keywords.folder, ['avg_' imgn{i,k}]);
+        imwrite2tif(starr(:,:,k),[],name,'single')
     end
 end
 
@@ -131,18 +182,18 @@ end
 name = keywords.outname;
 
 tname = 'tavg_';
-save([keywords.folder '\' tname name '.txt'],'tavg','-ascii')
-save([keywords.folder '\blb_anl_' name '.txt'],'sres','-ascii')
+save(fullfile(keywords.folder,[tname name '.txt']),'tavg','-ascii')
+save(fullfile(keywords.folder,['blb_anl_' name '.txt']),'sres','-ascii')
 
 end
 
 function imgn = imgn_check(bases,folder)
 results1 = file_search(bases{1},folder);
 imgn = cell(length(results1),length(bases));
-imgn(:,1) = results1';
+imgn(:,1) = results1;
 for i = 2:length(bases)
     results = file_search(bases{i},folder);
-    imgn(:,i) = results';
+    imgn(:,i) = results;
 end
 end
 
