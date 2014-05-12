@@ -1,5 +1,8 @@
 function SaveParams = GetInfo_Coloc(folder)
 
+% A program allowing for the manual input of all parameters
+% for a Coloc experiment.
+
 if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input and save parameters used in the analysis
     
     SaveParams.num_exp = input('How many experimental groups do you have? ');
@@ -8,6 +11,7 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
        SaveParams.exp_cell{i} = input('Enter an experimental group name \n(Ex. VinTS_Zyxin): ','s');
     end
     SaveParams.num_channel = 2;
+    SaveParams.mag = input('What magnification were your images taken at (40x or 60x)? ','s');
     SaveParams.channel1 = input('What is your first channel? ','s');
     SaveParams.channel2 = input('What is your second channel? ','s');
     SaveParams.crop = input('Would you like to crop your images (y or n)? ','s');
@@ -45,7 +49,11 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
                     SaveParams.closed_open = 'closed';
                     SaveParams.rat = 'N/A';
                 end
-                SaveParams.reg_calc = input('Calculate region properties (size, eccentricity, y or n)? ', 's');
+                if strcmpi(SaveParams.closed_open, 'closed')
+                    SaveParams.reg_calc = input('Calculate region properties (size, eccentricity, y or n)? ', 's');
+                elseif strcmpi(SaveParams.closed_open, 'open')
+                    SaveParams.reg_calc = 'n';
+                end
             end
         end
     end
