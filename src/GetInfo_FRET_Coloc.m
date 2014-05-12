@@ -1,5 +1,8 @@
 function SaveParams = GetInfo_FRET_Coloc(folder)
 
+% A program allowing for the manual input of all parameters
+% for a FRET-coloc experiment.
+
 if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input and save parameters used in the analysis
     
     SaveParams.num_exp = input('How many experimental groups do you have? ');
@@ -8,6 +11,7 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
        SaveParams.exp_cell{i} = input('Enter an experimental group name \n(Ex. VinTS_Zyxin): ','s');
     end
     SaveParams.num_channel = 4;
+    SaveParams.mag = input('What magnification were your images taken at (40x or 60x)? ','s');
     SaveParams.Achannel = input('What is your acceptor channel? ','s');
     SaveParams.FRETchannel = input('What is your FRET channel? ','s');
     SaveParams.Dchannel = input('What is your donor channel? ', 's');
@@ -66,7 +70,11 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
                     SaveParams.closed_open = 'closed';
                     SaveParams.rat = 'N/A';
                 end
-                SaveParams.reg_calc = input('Calculate region properties (size, eccentricity, y or n)? ', 's');
+                if strcmpi(SaveParams.closed_open, 'closed')
+                    SaveParams.reg_calc = input('Calculate region properties (size, eccentricity, y or n)? ', 's');
+                elseif strcmpi(SaveParams.closed_open, 'open')
+                    SaveParams.reg_calc = 'n';
+                end
             end
         end
     end
