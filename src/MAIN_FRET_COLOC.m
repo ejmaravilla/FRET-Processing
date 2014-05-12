@@ -7,18 +7,24 @@ prefix = '';
 %% Get Information
 folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1channel1.TIF" and "exp_01_w2channel2.TIF": ','s');
 SaveParams = GetInfo_FRET_Coloc(folder);
-    
+
 %% Crop & Register Images if Desired
 rehash
-if strcmpi(SaveParams.crop,'y') && strcmpi(SaveParams.reg,'n') && isempty(file_search('crop_\w+',folder))
-    img_cropper('\w+.TIF',folder)
-elseif strcmpi(SaveParams.reg,'y') && isempty(file_search('crop_\w+',folder)) % double check cropping
-    img_reg_new(folder)
+
+if strcmpi(SaveParams.crop,'y')
+    if isempty(file_search('crop_\w+',folder))
+        img_cropper('\w+.TIF',folder)
+    end
+    prefix = ['crop_' prefix];
 end
 
-if strcmpi(SaveParams.crop,'y') || strcmpi(SaveParams.reg,'y')
-    prefix = 'crop_';
+if strcmpi(SaveParams.reg,'y')
+    if isempty(file_search('reg_\w+',folder)) % double check cropping
+        img_reg(prefix,folder)
+    end
+    prefix = ['reg_' prefix];
 end
+
 
 %% Shade Correct Images new
 rehash
