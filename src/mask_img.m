@@ -8,7 +8,6 @@ num_masks = length(mask_names);
 temp = imread(mask_names{1});
 img_size = size(temp);
 masks = zeros(img_size);
-figure(1); hold on;
 for i = 1:num_masks
     mask = imread(mask_names{i});
     masks = masks+i*mask;
