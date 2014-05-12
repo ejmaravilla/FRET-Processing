@@ -1,5 +1,8 @@
 function [ParameterValues] = ParameterSelectorFunction(Image,WidthRange,ThreshRange,MergeRange,ParameterValues)
 
+% A program that allows the user to manually optimize and select fa_gen
+% parameters.
+
     % Determine colors
     numColors = 16;
     Colors = distinguishable_colors(numColors,'k');
@@ -31,7 +34,7 @@ function [ParameterValues] = ParameterSelectorFunction(Image,WidthRange,ThreshRa
     Image = Image(y(1):y(2),x(1):x(2));
     
     % Determine Focal Adhesions
-    FA = watershed_min_size(Image,ParameterValues);
+    FA = water(Image,ParameterValues);
     FAone = FA ~= 0;
     FAoutline = bwperim(FAone);
     FAcolor = FAoutline .* FA;
@@ -78,7 +81,7 @@ function [ParameterValues] = ParameterSelectorFunction(Image,WidthRange,ThreshRa
         ParameterValues(1) = val;
         
         % Re-determine focal adhesions
-        FA = watershed_min_size(Image,ParameterValues);
+        FA = water(Image,ParameterValues);
         FAone = FA ~= 0;
         FAoutline = bwperim(FAone);
         FAcolor = FAoutline .* FA;
@@ -107,7 +110,7 @@ function [ParameterValues] = ParameterSelectorFunction(Image,WidthRange,ThreshRa
         ParameterValues(2) = val;
         
         % Re-determine focal adhesions
-        FA = watershed_min_size(Image,ParameterValues);
+        FA = water(Image,ParameterValues);
         FAone = FA ~= 0;
         FAoutline = bwperim(FAone);
         FAcolor = FAoutline .* FA;
@@ -136,7 +139,7 @@ function [ParameterValues] = ParameterSelectorFunction(Image,WidthRange,ThreshRa
         ParameterValues(3) = val;
         
         % Re-determine focal adhesions
-        FA = watershed_min_size(Image,ParameterValues);
+        FA = water(Image,ParameterValues);
         FAone = FA ~= 0;
         FAoutline = bwperim(FAone);
         FAcolor = FAoutline .* FA;
