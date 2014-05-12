@@ -100,6 +100,7 @@ elseif strcmpi(closed_open,'open') && strcmpi(manual,'y') && strcmpi(pre_exist,'
         newcols = dist_col;
         close all;
     end
+    
 elseif strcmpi(closed_open,'closed') && strcmpi(manual,'n') && strcmpi(pre_exist,'n')
     files = file_search(imgexp,folder);
 %     im = imread(imgexp);
