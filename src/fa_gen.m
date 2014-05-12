@@ -1,7 +1,7 @@
 function fa_gen(fname,params,fold)
 
 % A simple program to generate masks using the water program
-% A typical set of params is [25,100,15]
+% A typical set of params is [25,1000,25]
 
 files = file_search(fname,fold);
 
