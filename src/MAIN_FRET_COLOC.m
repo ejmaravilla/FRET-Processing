@@ -10,21 +10,18 @@ SaveParams = GetInfo_FRET_Coloc(folder);
 
 %% Crop & Register Images if Desired
 rehash
-
 if strcmpi(SaveParams.crop,'y')
     if isempty(file_search('crop_\w+',folder))
         img_cropper('\w+.TIF',folder)
     end
     prefix = ['crop_' prefix];
 end
-
 if strcmpi(SaveParams.reg,'y')
     if isempty(file_search('reg_\w+',folder)) % double check cropping
-        img_reg(prefix,folder)
+        img_reg(prefix,SaveParams.mag,folder)
     end
     prefix = ['reg_' prefix];
 end
-
 
 %% Shade Correct Images new
 rehash
@@ -157,10 +154,13 @@ rehash
 if strcmpi(SaveParams.reg_select,'y')
     for i = 1:SaveParams.num_exp
         newcols = boundary_dist([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],['blb_anl_' keywords(i).outname '.txt'],folder,SaveParams.closed_open,SaveParams.manual,SaveParams.reg_calc,SaveParams.rat,SaveParams.pre_exist,SaveParams.num_channel);
-        img_names = file_search([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],folder);
-        num_img = length(img_names);
-        for j = 1:num_img
-            mask_img(['polymask\w+' img_names{j}],folder)
+        rehash
+        if strcmpi(SaveParams.closed_open,'closed')
+            img_names = file_search([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],folder);
+            num_img = length(img_names);
+            for j = 1:num_img
+                mask_img(['polymask\w+' img_names{j}],folder)
+            end
         end
         app_cols_blb(['blb_anl_' keywords(i).outname '.txt'],newcols,folder,SaveParams.num_channel)
     end
