@@ -1,7 +1,7 @@
 function SaveParams = GetInfo_FRET(folder)
 
 % A program allowing for the manual input of all parameters
-% for a FRET-coloc experiment.
+% for a FRET experiment.
 
 if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input and save parameters used in the analysis
     
