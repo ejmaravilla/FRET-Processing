@@ -37,7 +37,11 @@ if strcmpi(closed_open,'closed') && strcmpi(manual,'y') && strcmpi(pre_exist,'n'
         cell_center_dist = zeros(length(rows),cell_num);
         
         for k = 1:cell_num
-            M = imfreehand(gca);
+            v = 1;
+            while v == 1;
+                M = imfreehand(gca);
+                v = input('Keep region (1 = no, anything = yes)?');
+            end
             P0 = M.getPosition;
             D = round([0; cumsum(sum(abs(diff(P0)),2))]);
             P = interp1(D,P0,D(1):.5:D(end));
@@ -83,7 +87,12 @@ elseif strcmpi(closed_open,'open') && strcmpi(manual,'y') && strcmpi(pre_exist,'
     for i = 1:o
         im = imread(files{i});
         figure; imagesc(im);
-        M = imfreehand(gca,'Closed',0);
+        v = 1;
+        while v == 1;
+            M = imfreehand(gca,'Closed',0);
+            v = input('Keep region (yes = pressENTER, no = press1)?');
+        end
+%         M = imfreehand(gca,'Closed',0);
         P0 = M.getPosition;
         D = round([0; cumsum(sum(abs(diff(P0)),2))]);
         P = interp1(D,P0,D(1):.5:D(end));
