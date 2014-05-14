@@ -5,7 +5,7 @@ for i = 1:length(files)
     m = double(imread(files{i}));
     m(m ~= 0) = 1;
     scores = strfind(files{i},'_');
-    base = files{i}(4:scores(end));
+    base = files{i}(8:scores(end));
     
     C1 = single(imread(['bsa_' base 'w1' A '.TIF']));
     mC1 = m.*C1;
