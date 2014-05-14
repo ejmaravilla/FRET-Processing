@@ -115,7 +115,7 @@ if strcmpi(SaveParams.find_blobs,'y') && strcmpi(SaveParams.optimize,'y') && ise
         Image = double(imread(ImageName));
         Values(i,:) = ParameterSelectorFunction(Image,WidthRange,ThreshRange,MergeRange,ParameterValues);
     end
-    SaveParams.blob_params = mean(Values);
+    SaveParams.blob_params = round(mean(Values));
     save(fullfile(pwd,folder,['SaveParams_' folder '.mat']),'-struct','SaveParams');
 end
 
