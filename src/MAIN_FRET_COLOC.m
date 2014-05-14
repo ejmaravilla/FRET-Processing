@@ -5,7 +5,7 @@ clc;
 prefix = '';
 
 %% Get Information
-folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1channel1.TIF" and "exp_01_w2channel2.TIF": ','s');
+folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1Achannel.TIF", "exp_01_w2FRETchannel.TIF",\n"exp_01_w3Dchannel.TIF", and "exp_01_w4Schannel.TIF": ','s');
 SaveParams = GetInfo_FRET_Coloc(folder);
 
 %% Crop & Register Images if Desired
@@ -117,7 +117,7 @@ if strcmpi(SaveParams.find_blobs,'y') && strcmpi(SaveParams.optimize,'y') && ise
         Image = double(imread(ImageName));
         Values(i,:) = ParameterSelectorFunction(Image,WidthRange,ThreshRange,MergeRange,ParameterValues);
     end
-    SaveParams.blob_params = mean(Values);
+    SaveParams.blob_params = round(mean(Values));
     save(fullfile(pwd,folder,['SaveParams_' folder '.mat']),'-struct','SaveParams');
 end
 
@@ -125,7 +125,7 @@ end
 rehash
 if strcmpi(SaveParams.find_blobs,'y') && isempty(file_search('fa_\w+',folder))
     for i = 1:SaveParams.num_exp
-        fa_gen([prefix SaveParams.exp_cell{i} '\w+' SaveParams.blob_channel '.TIF'],SaveParams.blob_params,param.destfolder)
+        fa_gen(['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.blob_channel '.TIF'],SaveParams.blob_params,param.destfolder)
     end
 end
 
@@ -140,7 +140,7 @@ if strcmpi(SaveParams.analyze_blobs,'y')
         pre_outname2 = pre_outname1{1}(1:end-(10+length(SaveParams.Achannel)));
         keywords(i).outname = pre_outname2;
         if length(file_search('blb_anl\w+.txt',folder)) < i
-            blob_analyze({['cna_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.FRETchannel '.TIF'],['bsd_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Dchannel '.TIF'],['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+' SaveParams.Schannel '.TIF'],['fa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},keywords(i))
+            blob_analyze({['cna_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.FRETchannel '.TIF'],['bsd_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Dchannel '.TIF'],['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+' SaveParams.Schannel '.TIF'],['fa_bsa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},keywords(i))
         end
     end
 end
@@ -153,10 +153,10 @@ end
 rehash
 if strcmpi(SaveParams.reg_select,'y')
     for i = 1:SaveParams.num_exp
-        newcols = boundary_dist([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],['blb_anl_' keywords(i).outname '.txt'],folder,SaveParams.closed_open,SaveParams.manual,SaveParams.reg_calc,SaveParams.rat,SaveParams.pre_exist,SaveParams.num_channel);
+        newcols = boundary_dist(['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],['blb_anl_' keywords(i).outname '.txt'],folder,SaveParams.closed_open,SaveParams.manual,SaveParams.reg_calc,SaveParams.rat,SaveParams.pre_exist,SaveParams.num_channel);
         rehash
         if strcmpi(SaveParams.closed_open,'closed')
-            img_names = file_search([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],folder);
+            img_names = file_search(['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],folder);
             num_img = length(img_names);
             for j = 1:num_img
                 mask_img(['polymask\w+' img_names{j}],folder)
