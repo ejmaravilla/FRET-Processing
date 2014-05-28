@@ -27,7 +27,7 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
     SaveParams.bt = input('Calculate bleedthroughs (y or n)? ','s');
     if strcmpi(SaveParams.bt,'y');
         SaveParams.donor_pre = input('Enter donor image names (Ex. Teal): ','s');
-        SaveParams.acceptor_pre = input('Enter donor image names (Ex. Venus): ','s');
+        SaveParams.acceptor_pre = input('Enter acceptor image names (Ex. Venus): ','s');
         SaveParams.dthres = input('Only calculate BTs above donor intensity (~500): ');
         SaveParams.athres = input('Only calculate BTs above acceptor intensity (~800): ');
     elseif strcmpi(SaveParams.bt,'n');
