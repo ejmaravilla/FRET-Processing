@@ -122,7 +122,7 @@ if param.nobkgd && nps > 3
 end
 
 % load files
-filecell = {'doafn','dodfn','dofrn','bafn','bdfn','bfrn','aoaxam','aodxdm','aodxam'};
+filecell = {'doafn','dodfn','dofrn','bafn','bdfn','bfrn','aoafn','aodfn','aofrn'};
 filenames = {doaf,dodf,dofr};
 ndoa = length(doaf);
 ndod = length(dodf);
@@ -132,6 +132,7 @@ if param.nobkgd && nps > 3
     filenames{4} = aoaf;
     filenames{5} = aodf;
     filenames{6} = aofr;
+    naoa = length(aoaf);
 end
 
 for i = 1:3
@@ -224,13 +225,13 @@ for i=1:ndoa
     end
 end
 
-aoaxam = cell(1,length(aoaxam));
-aodxam = cell(1,length(aoaxam));
-aodxdm = cell(1,length(aoaxam));
+aoaxam = cell(1,naoa);
+aodxam = cell(1,naoa);
+aodxdm = cell(1,naoa);
 if daflag
     for i = 1:length(aoaxam)
         % do flatfielding and background subtraction
-        [aoaxam{i},aodxdm{i},aodxam{i}] = deover(aoaxam{i},aodxdm{i},aodxam{i},param.bit);
+        [aoaxam{i},aodxdm{i},aodxam{i}] = deover(aoafn{i},aodfn{i},aofrn{i},param.bit);
         if nps == 9 && ~param.nobkgd
             aodxdm{i} = bs_ff(aodxdm{i},dxdmb,param);
             aodxam{i} = bs_ff(aodxam{i},dxamb,param);
