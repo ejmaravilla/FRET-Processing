@@ -90,13 +90,13 @@ end
 %% Correct the Images
 rehash
 file = param.outname;
-param.imin = [SaveParams.venus_thres 0 -10000];
 param = rmfield(param,'outname');
 param.donor_norm = 0;
 param.double_norm = 0;
 param.leave_neg = 1;
 param.ocimg = 1;
 if strcmpi(SaveParams.correct,'y') && isempty(file_search('cna_\w+.TIF',folder));
+    param.imin = [SaveParams.venus_thres 0 -10000];
     for i = 1:SaveParams.num_exp
         fret_correct([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],{SaveParams.abt},{SaveParams.dbt},param)
     end
