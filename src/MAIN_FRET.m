@@ -6,63 +6,13 @@ prefix = '';
 
 %% Get Information
 folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1Achannel.TIF" and "exp_01_w2FRETchannel.TIF",\n"exp_01_w3Dchannel.TIF" : ','s');
-SaveParams = GetInfo_FRET(folder);
+SaveParams = GetInfo_FRET_pre(folder);
 
-%% Crop & Register Images if Desired
-rehash
-if strcmpi(SaveParams.crop,'y')
-    if isempty(file_search('crop_\w+',folder))
-        img_cropper('\w+.TIF',folder)
-    end
-    prefix = ['crop_' prefix];
+%% Preprocess images
+if isempty(file_search('pre_\w+',folder))
+    preprocess({'SaveParams.Achannel' 'SaveParams.FRETchannel' 'SaveParams.Dchannel'},'SaveParams',folder)
 end
-if strcmpi(SaveParams.reg,'y')
-    if isempty(file_search('reg_\w+',folder)) % double check cropping
-        img_reg(prefix,SaveParams.mag,folder)
-    end
-    prefix = ['reg_' prefix];
-end
-
-%% Shade Correct Images new
-rehash
-if strcmpi(SaveParams.shadecorrect,'y') && isempty(file_search('sc_\w+',folder))
-    if strcmpi(SaveParams.bt,'y')
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],[prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],[prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],folder);
-    end
-    for i = 1:SaveParams.num_exp
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Dchannel '.TIF'],folder);
-    end
-    shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],[prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],folder);
-    shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],folder);
-    shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],folder);
-end
-
-if strcmpi(SaveParams.shadecorrect,'y');
-    prefix = ['sc_' prefix];
-end
-
-%% Background Subtract
-rehash
-if isempty(file_search('bs_\w+',folder));
-    params.bin = 1;
-    params.nozero = 0;
-    imgs = file_search([prefix '\w+.TIF'],folder);
-    for i = 1:length(imgs)
-        a = double(imread(imgs{i}));
-        imout = bs_ff(a,params);
-        imwrite2tif(imout,[],fullfile(folder,['bs_' imgs{i}]),'single');
-    end
-end
-prefix = ['bs_' prefix];
-param.sourcefolder = folder;
-param.destfolder = folder;
+prefix = 'pre_';
 
 %% Calculate Bleedthroughs
 rehash
@@ -90,13 +40,13 @@ end
 %% Correct the Images
 rehash
 file = param.outname;
+param.imin = [SaveParams.venus_thres 0 -10000];
 param = rmfield(param,'outname');
 param.donor_norm = 0;
 param.double_norm = 0;
 param.leave_neg = 1;
 param.ocimg = 1;
 if strcmpi(SaveParams.correct,'y') && isempty(file_search('cna_\w+.TIF',folder));
-    param.imin = [SaveParams.venus_thres 0 -10000];
     for i = 1:SaveParams.num_exp
         fret_correct([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],{SaveParams.abt},{SaveParams.dbt},param)
     end
