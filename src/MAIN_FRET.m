@@ -9,8 +9,10 @@ folder = input('Type the name of the folder that contains your images, \n make s
 SaveParams = GetInfo_FRET_pre(folder);
 
 %% Preprocess images
+rehash
+channels = {'Venus' 'TVFRET' 'Teal'};
 if isempty(file_search('pre_\w+',folder))
-    preprocess({'SaveParams.Achannel' 'SaveParams.FRETchannel' 'SaveParams.Dchannel'},'SaveParams',folder)
+    preprocess(channels,'PreParams',folder)
 end
 prefix = 'pre_';
 
