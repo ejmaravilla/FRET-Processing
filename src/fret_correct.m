@@ -268,9 +268,9 @@ end
 
 for i = 1:length(df)
     % Get fluorescent images
-    axam = double(imread(af{i}));
-    dxdm = double(imread(df{i}));
-    dxam = double(imread(fr{i}));
+    axam = double(imread(fullfile(param.sourcefolder,af{i})));
+    dxdm = double(imread(fullfile(param.sourcefolder,df{i})));
+    dxam = double(imread(fullfile(param.sourcefolder,fr{i})));
     
     % Optionally align images
     if isfield(param,'range')
