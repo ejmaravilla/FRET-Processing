@@ -71,8 +71,8 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
             end
         end
     end
-    save(fullfile(pwd,folder,['SaveParams_' folder '.mat']),'-struct','SaveParams');
+    save(fullfile(folder,'SaveParams.mat'),'-struct','SaveParams');
     
 else % Load the parameter file and save variables as the different parts of it
-    SaveParams = load(['SaveParams_' folder '.mat']);
+    SaveParams = load(fullfile(folder,'SaveParams.mat'));
 end
