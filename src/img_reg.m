@@ -17,7 +17,7 @@ DAPI = shifts(7,:);
 if strcmpi(mag,'60x')
     vfiles = file_search([prefix '\w+Venus.TIF'],folder);
     if ~isempty(vfiles)
-        sz = size(imread(vfiles{1}));
+        sz = size(imread(fullfile(folder,vfiles{1})));
         [y,x] = ndgrid(1:sz(1),1:sz(2));
         if sz(1) == 1024
             crop2 = [5 5 1013 1013]; % if using center quadrant
@@ -26,7 +26,7 @@ if strcmpi(mag,'60x')
         end
         
         for i = 1:length(vfiles)
-            vimg = single(imread(vfiles{i}));
+            vimg = single(imread(fullfile(folder,vfiles{i})));
             vreg = interp2(x,y,vimg,x-V(1),y-V(2));
             vcrop = imcrop(vreg,crop2);
             imwrite2tif(vcrop,[],fullfile(folder,['reg_' vfiles{i}]),'single')
@@ -35,7 +35,7 @@ if strcmpi(mag,'60x')
     
     tfiles = file_search([prefix '\w+Teal.TIF'],folder);
     if ~isempty(tfiles)
-        sz = size(imread(tfiles{1}));
+        sz = size(imread(fullfile(folder,tfiles{1})));
         [y,x] = ndgrid(1:sz(1),1:sz(2));
         if sz(1) == 1024
             crop2 = [5 5 1013 1013]; % if using center quadrant
@@ -44,7 +44,7 @@ if strcmpi(mag,'60x')
         end
         
         for i = 1:length(tfiles)
-            timg = single(imread(tfiles{i}));
+            timg = single(imread(fullfile(folder,tfiles{i})));
             treg = interp2(x,y,timg,x-T(1),y-T(2));
             tcrop = imcrop(treg,crop2);
             imwrite2tif(tcrop,[],fullfile(folder,['reg_' tfiles{i}]),'single')
@@ -53,7 +53,7 @@ if strcmpi(mag,'60x')
     
     ffiles = file_search([prefix '\w+TVFRET.TIF'],folder);
     if ~isempty(ffiles)
-        sz = size(imread(ffiles{1}));
+        sz = size(imread(fullfile(folder,ffiles{1})));
         [y,x] = ndgrid(1:sz(1),1:sz(2));
         if sz(1) == 1024
             crop2 = [5 5 1013 1013]; % if using center quadrant
@@ -61,7 +61,7 @@ if strcmpi(mag,'60x')
             crop2 = [5 5 2038 2038]; % if using full image
         end
         for i = 1:length(ffiles)
-            fimg = single(imread(ffiles{i}));
+            fimg = single(imread(fullfile(folder,ffiles{i})));
             freg = interp2(x,y,fimg,x-F(1),y-F(2));
             fcrop = imcrop(freg,crop2);
             imwrite2tif(fcrop,[],fullfile(folder,['reg_' ffiles{i}]),'single')
