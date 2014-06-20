@@ -39,7 +39,7 @@ for i = 1:length(channels)
     shade = PreParams.(channels{i}).shade;
     for j = 1:length(imgNames)
         %Load images
-        img = single(imread(imgNames{j}));
+        img = single(imread(fullfile(folder,imgNames{j})));
         %XY Registration
         sz = size(img);
         [y,x] = ndgrid(1:sz(1),1:sz(2));
