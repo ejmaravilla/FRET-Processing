@@ -17,12 +17,12 @@ PreParams = load(paramsName{1});
 
 for i = 1:length(channels)
     imgNames = file_search(['\w+' channels{i} '.TIF'],folder);
-    eval(sprintf('reg_x = PreParams.%s.xshift;',channels{i}))
-    eval(sprintf('reg_y = PreParams.%s.yshift;',channels{i}))
-    eval(sprintf('rad_k = PreParams.%s.k;',channels{i}))
-    eval(sprintf('rad_ex = PreParams.%s.ex;',channels{i}))
-    eval(sprintf('dark = PreParams.%s.dark;',channels{i}))
-    eval(sprintf('shade = PreParams.%s.shade;',channels{i}))
+    reg_x = PreParams.(channels{i}).xshift;
+    reg_y = PreParams.(channels{i}).yshift;
+    rad_k = PreParams.(channels{i}).k;
+    rad_ex = PreParams.(channels{i}).ex;
+    dark = PreParams.(channels{i}).dark;
+    shade = PreParams.(channels{i}).shade;
     for j = 1:length(imgNames)
         %Load images
         img = single(imread(imgNames{j}));
