@@ -1,4 +1,4 @@
-function preprocess(channels,parameters,folder)
+function preprocess(channels,parameters_file,folder)
 % This function allows one to perform preprocessing steps that are required
 % for any experiment. Just type in the channels you took pictures in and it
 % will output perfectly overlayed images. The structure PreParams depends 
@@ -12,8 +12,22 @@ function preprocess(channels,parameters,folder)
 % (4) Darkfield subtraction and shading correction (flatfielding)
 % (5) Background subtraction
 
-paramsName = file_search([parameters '\w+.mat'],folder);
-PreParams = load(paramsName{1});
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Setup and Verify Inputs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+i_p = inputParser;
+i_p.addRequired('channels',@iscell);
+i_p.addRequired('parameters_file',@(x)exist(x,'file') == 2);
+i_p.addRequired('folder',@(x)exist(x,'dir') == 7);
+
+i_p.parse(channels,parameters_file,folder);
+
+PreParams = load(parameters_file);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Main Program
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for i = 1:length(channels)
     imgNames = file_search(['\w+' channels{i} '.TIF'],folder);

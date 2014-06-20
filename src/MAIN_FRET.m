@@ -12,7 +12,7 @@ SaveParams = GetInfo_FRET_pre(folder);
 rehash
 channels = {'Venus' 'TVFRET' 'Teal'};
 if isempty(file_search('pre_\w+',folder))
-    preprocess(channels,'SaveParams',folder)
+    preprocess(channels,'PreParams.mat',folder)
 end
 prefix = 'pre_';
 
