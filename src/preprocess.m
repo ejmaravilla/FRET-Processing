@@ -1,4 +1,4 @@
-function preprocess(channels,parameters_file,folder)
+function preprocess(channels,parameters_file,folder,varargin)
 % This function allows one to perform preprocessing steps that are required
 % for any experiment. Just type in the channels you took pictures in and it
 % will output perfectly overlayed images. The structure PreParams depends 
@@ -21,6 +21,8 @@ i_p.addRequired('channels',@iscell);
 i_p.addRequired('parameters_file',@(x)exist(x,'file') == 2);
 i_p.addRequired('folder',@(x)exist(x,'dir') == 7);
 
+i_p.addParamValue('status_messages',true,@(x)islogical(x));
+
 i_p.parse(channels,parameters_file,folder);
 
 PreParams = load(parameters_file);
@@ -37,6 +39,11 @@ for i = 1:length(channels)
     rad_ex = PreParams.(channels{i}).ex;
     dark = PreParams.(channels{i}).dark;
     shade = PreParams.(channels{i}).shade;
+    
+    if (i_p.Results.status_messages)
+        fprintf('Starting on channel %s (%d/%d)\n',channels{i},i,length(channels));
+    end
+    
     for j = 1:length(imgNames)
         %Load images
         img = single(imread(fullfile(folder,imgNames{j})));
@@ -61,6 +68,12 @@ for i = 1:length(channels)
         img = bs_ff(img,params);
         %Write out as 32bit TIFs
         imwrite2tif(img,[],fullfile(folder,['pre_' imgNames{j}]),'single')
+        if (i_p.Results.status_messages && any(j == round(linspace(1,length(imgNames),5))))
+            fprintf('Done with image %d/%d\n',j,length(imgNames));
+        end
+    end
+    if (i_p.Results.status_messages)
+        fprintf('Done with channel %d/%d\n',i,length(channels));
     end
 end
 
