@@ -137,7 +137,8 @@ end
 
 for i = 1:3
     for j = 1:ndoa
-        eval(sprintf('%s{j} = double(imread(''%s''));',filecell{i},filenames{i}{j}))
+        eval(sprintf('%s{j} = double(imread(fullfile(''%s'',''%s'')));',...
+            filecell{i},param.sourcefolder,filenames{i}{j}));
     end
 end
 
@@ -146,7 +147,7 @@ end
 if ~param.nobkgd && nps >= 6
     for i = 1:3 % read in 4-6 as background
         for j = 1:length(varargin{1})
-            eval(sprintf('%s{j} = double(imread(''%s''));',filecell{i+3},filenames{i+3}{j}))
+            eval(sprintf('%s{j} = double(imread(''%s''));',filecell{i+3},filenames{i+3}{j}));
         end
     end
     tot = 0;
@@ -166,7 +167,8 @@ if ~param.nobkgd && nps >= 6
 elseif nps >= 6 && param.nobkgd
     for i = 1:3 % read in 4-6 as ao
         for j = 1:length(aoaf)
-            eval(sprintf('%s{j} = double(imread(''%s''));',filecell{i+6},filenames{i+3}{j}))
+            eval(sprintf('%s{j} = double(imread(fullfile(''%s'',''%s'')));',...
+                filecell{i+6},param.sourcefolder,filenames{i+3}{j}))
         end
     end
     daflag = 1;
