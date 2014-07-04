@@ -332,17 +332,10 @@ if daflag
 end
 
 if ~isfield(param,'pf')
-    if isfield(param,'outname')
-        save(fullfile(pwd,param.destfolder,['\nlabt_' param.outname '.dat']),'nlabt','-ascii')
-        save(fullfile(pwd,param.destfolder,['\nldbt_' param.outname '.dat']),'nldbt','-ascii')
-        save(fullfile(pwd,param.destfolder,['\nlact_' param.outname '.dat']),'nlact','-ascii')
-        save(fullfile(pwd,param.destfolder,['\nldct_' param.outname '.dat']),'nldct','-ascii')
-    else
-        save(fullfile(pwd,param.destfolder,'nlabt.dat'),'nlabt','-ascii')
-        save(fullfile(pwd,param.destfolder,'nldbt.dat'),'nldbt','-ascii')
-        save(fullfile(pwd,param.destfolder,'nlact.dat'),'nlact','-ascii')
-        save(fullfile(pwd,param.destfolder,'nldct.dat'),'nldct','-ascii')
-    end
+    save(fullfile(param.destfolder,'nlabt.dat'),'nlabt','-ascii')
+    save(fullfile(param.destfolder,'nldbt.dat'),'nldbt','-ascii')
+    save(fullfile(param.destfolder,'nlact.dat'),'nlact','-ascii')
+    save(fullfile(param.destfolder,'nldct.dat'),'nldct','-ascii')
 else
     if ~isfield(param,'outname')
         param.outname = ' ';
