@@ -70,6 +70,9 @@ if not(exist(fullfile(folder,'SaveParams.mat'),'file')) % Manually input and sav
                 end
             end
         end
+    elseif strcmpi(SaveParams.find_blobs,'n')
+        SaveParams.analyze_blobs = 'n';
+        SaveParams.reg_select = 'n';
     end
     save(fullfile(folder,'SaveParams.mat'),'-struct','SaveParams');
     
