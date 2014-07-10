@@ -1,4 +1,4 @@
-function [cell_col_img,dists_img,cell_area,cell_ecc, cell_cent_x, cell_cent_y, cell_convex_area, cell_per,cell_center_dist] = app_poly_blobs_cells(blobfile,polyfile,maskfile,imgnum,cellnum,num_channel)
+function [cell_col_img, dists_img, cell_area, cell_ecc, cell_cent_x, cell_cent_y, cell_convex_area, cell_per, cell_center_dist] = app_poly_blobs_cells(blobfile,polyfile,maskfile,imgnum,cellnum,num_channel)
 
 % This function generates columns to add to blob files that contain cell
 % parameters along with distance from edge calculations
