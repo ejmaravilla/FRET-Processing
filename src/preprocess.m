@@ -52,7 +52,7 @@ for i = 1:length(channels)
         [y,x] = ndgrid(1:sz(1),1:sz(2));
         img = interp2(x,y,img,x-reg_x,y-reg_y);
         %Radial Correction
-        img = lensdistort1(img,rad_k,rad_ex,'ftype',5,'bordertype','fit');
+        img = lensdistort(img,rad_k,rad_ex,'ftype',5,'bordertype','fit');
         %Cropping to get rid of pixels outside the field of view after radial 
         %and XY translational corrections
         sz = size(img);
