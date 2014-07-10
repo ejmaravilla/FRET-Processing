@@ -47,6 +47,8 @@ for i = 1:length(channels)
     for j = 1:length(imgNames)
         %Load images
         img = single(imread(fullfile(folder,imgNames{j})));
+        %Darkfield subtraction before registration
+        img = img - dark;
         %XY Registration
         sz = size(img);
         [y,x] = ndgrid(1:sz(1),1:sz(2));
@@ -56,11 +58,9 @@ for i = 1:length(channels)
         %Cropping to get rid of pixels outside the field of view after radial 
         %and XY translational corrections
         sz = size(img);
-        crop = [round(0.05*sz(1)) round(0.05*sz(1)) round(0.9*sz(1)) round(0.9*sz(1))];
+        crop = [round(0.0246*sz(1)) round(0.0246*sz(1)) round(0.9509*sz(1)) round(0.9509*sz(1))];
         img = imcrop(img,crop);
-        %Darkfield subtraction + avg shade corrections both previously
-        %registered, radially corrected and cropped
-        img = img - dark;
+        %Avg shade corrections both previously registered, radially corrected and cropped
         img = img./shade;
         %Background subtraction
         params.bin = 1;
