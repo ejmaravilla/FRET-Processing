@@ -8,7 +8,7 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
     SaveParams.num_exp = input('How many experimental groups do you have? ');
     SaveParams.exp_cell = cell(1,SaveParams.num_exp);
     for i = 1:SaveParams.num_exp
-       SaveParams.exp_cell{i} = input('Enter an experimental group name \n(Ex. VinTS_Zyxin): ','s');
+        SaveParams.exp_cell{i} = input('Enter an experimental group name \n(Ex. VinTS_Zyxin): ','s');
     end
     SaveParams.num_channel = 4;
     SaveParams.mag = input('What magnification were your images taken at (40x or 60x)? ','s');
@@ -71,6 +71,9 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
                 end
             end
         end
+    elseif strcmpi(SaveParams.find_blobs,'n')
+        SaveParams.analyze_blobs = 'n';
+        SaveParams.reg_select = 'n';
     end
     save(fullfile(pwd,folder,['SaveParams_' folder '.mat']),'-struct','SaveParams');
     
