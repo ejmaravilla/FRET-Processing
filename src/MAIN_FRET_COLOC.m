@@ -5,66 +5,16 @@ clc;
 prefix = '';
 
 %% Get Information
-folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1Achannel.TIF", "exp_01_w2FRETchannel.TIF",\n"exp_01_w3Dchannel.TIF", and "exp_01_w4Schannel.TIF": ','s');
-SaveParams = GetInfo_FRET_Coloc(folder);
+folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1Achannel.TIF" and "exp_01_w2FRETchannel.TIF",\n"exp_01_w3Dchannel.TIF" : ','s');
+SaveParams = GetInfo_FRET_Coloc_pre(folder);
 
-%% Crop & Register Images if Desired
+%% Preprocess images using PreParams.mat file in GoogleDrive (Protocols -> Analysis Protocols -> FRET)
 rehash
-if strcmpi(SaveParams.crop,'y')
-    if isempty(file_search('crop_\w+',folder))
-        img_cropper('\w+.TIF',folder)
-    end
-    prefix = ['crop_' prefix];
+channels = {SaveParams.Achannel SaveParams.FRETchannel SaveParams.Dchannel SaveParams.Schannel};
+if isempty(file_search('pre_\w+',folder))
+    preprocess(channels,'PreParams\w+.mat',folder)
 end
-if strcmpi(SaveParams.reg,'y')
-    if isempty(file_search('reg_\w+',folder)) % double check cropping
-        img_reg(prefix,SaveParams.mag,folder)
-    end
-    prefix = ['reg_' prefix];
-end
-
-%% Shade Correct Images new
-rehash
-if strcmpi(SaveParams.shadecorrect,'y') && isempty(file_search('sc_\w+',folder))
-    if strcmpi(SaveParams.bt,'y')
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],[prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],[prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],folder);
-    end
-    for i = 1:SaveParams.num_exp
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Dchannel '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Schannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Schannel '.TIF'],folder);
-    end
-    shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],[prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],folder);
-    shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],folder);
-    shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],folder);
-    shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Schannel '.TIF'],[prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.Schannel '.TIF'],folder);
-end
-
-if strcmpi(SaveParams.shadecorrect,'y');
-    prefix = ['sc_' prefix];
-end
-
-%% Background Subtract
-rehash
-if isempty(file_search('bs_\w+',folder));
-    params.bin = 1;
-    params.nozero = 0;
-    imgs = file_search([prefix '\w+.TIF'],folder);
-    for i = 1:length(imgs)
-        a = double(imread(imgs{i}));
-        imout = bs_ff(a,params);
-        imwrite2tif(imout,[],fullfile(folder,['bs_' imgs{i}]),'single');
-    end
-end
-prefix = ['bs_' prefix];
-param.sourcefolder = folder;
-param.destfolder = folder;
+prefix = 'pre_';
 
 %% Calculate Bleedthroughs
 rehash
@@ -84,8 +34,13 @@ param.nozero = 0;
 param.ocimg = 0;
 
 if strcmpi(SaveParams.bt,'y') && isempty(file_search('bsa_\w+',folder))
-    [SaveParams.abt,SaveParams.dbt] = fret_bledth([prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],...
-        [prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],param);
+    [SaveParams.abt,SaveParams.dbt] = fret_bledth([prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],...
+        [prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],...
+        [prefix SaveParams.donor_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],...
+        [prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.Achannel '.TIF'],...
+        [prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.Dchannel '.TIF'],...
+        [prefix SaveParams.acceptor_pre '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],...
+        param);
     save(fullfile(pwd,folder,['SaveParams_' folder '.mat']),'-struct','SaveParams');
 end
 
@@ -99,8 +54,11 @@ param.double_norm = 0;
 param.leave_neg = 1;
 param.ocimg = 1;
 if strcmpi(SaveParams.correct,'y') && isempty(file_search('cna_\w+.TIF',folder));
-    for i = 1:SaveParams.num_exp
-        fret_correct([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Dchannel '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],{SaveParams.abt},{SaveParams.dbt},param)
+    for i = 1:length(SaveParams.exp_cell)
+        fret_correct([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],...
+            [prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Dchannel '.TIF'],...
+            [prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],...
+            {SaveParams.abt},{SaveParams.dbt},param);
     end
 end
 
@@ -146,7 +104,7 @@ if strcmpi(SaveParams.analyze_blobs,'y')
 end
 rehash
 if strcmpi(SaveParams.analyze_blobs,'y') && isempty(file_search('masked\w+.TIF',folder))
-    app_mask_FRET_COLOC(SaveParams.Achannel,SaveParams.Dchannel,SaveParams.FRETchannel,SaveParams.Schannel,param.destfolder)
+    app_mask_FRET(SaveParams.Achannel,SaveParams.Dchannel,SaveParams.FRETchannel,param.destfolder)
 end
 
 %% Select Boundaries and calculate boundary properties

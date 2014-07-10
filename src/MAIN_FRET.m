@@ -8,11 +8,11 @@ prefix = '';
 folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1Achannel.TIF" and "exp_01_w2FRETchannel.TIF",\n"exp_01_w3Dchannel.TIF" : ','s');
 SaveParams = GetInfo_FRET_pre(folder);
 
-%% Preprocess images
+%% Preprocess images using PreParams.mat file in GoogleDrive (Protocols -> Analysis Protocols -> FRET)
 rehash
-channels = {'Venus' 'TVFRET' 'Teal'};
+channels = {SaveParams.Achannel SaveParams.FRETchannel SaveParams.Dchannel};
 if isempty(file_search('pre_\w+',folder))
-    preprocess(channels,'PreParams.mat',folder)
+    preprocess(channels,'PreParams\w+.mat',folder)
 end
 prefix = 'pre_';
 
