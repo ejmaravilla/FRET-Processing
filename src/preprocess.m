@@ -32,7 +32,7 @@ PreParams = load(parameters_file);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for i = 1:length(channels)
-    imgNames = file_search(['\w+' channels{i} '.TIF'],folder);
+    imgNames = file_search(['.*' channels{i} '.TIF'],folder);
     reg_x = PreParams.(channels{i}).xshift;
     reg_y = PreParams.(channels{i}).yshift;
     rad_k = PreParams.(channels{i}).k;
