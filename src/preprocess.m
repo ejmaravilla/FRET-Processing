@@ -1,4 +1,4 @@
-function preprocess(channels,parameters_file,folder,varargin)
+function preprocess(parameters_file,folder,varargin)
 % This function allows one to perform preprocessing steps that are required
 % for any experiment. Just type in the channels you took pictures in and it
 % will output perfectly overlayed images. The structure PreParams depends 
@@ -17,13 +17,12 @@ function preprocess(channels,parameters_file,folder,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 i_p = inputParser;
-i_p.addRequired('channels',@iscell);
 i_p.addRequired('parameters_file',@(x)exist(x,'file') == 2);
 i_p.addRequired('folder',@(x)exist(x,'dir') == 7);
 
 i_p.addParamValue('status_messages',false,@(x)islogical(x));
 
-i_p.parse(channels,parameters_file,folder);
+i_p.parse(parameters_file,folder);
 
 PreParams = load(parameters_file);
 
@@ -31,17 +30,21 @@ PreParams = load(parameters_file);
 %% Main Program
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for i = 1:length(channels)
-    imgNames = file_search(['.*' channels{i} '.TIF'],folder);
-    reg_x = PreParams.(channels{i}).xshift;
-    reg_y = PreParams.(channels{i}).yshift;
-    rad_k = PreParams.(channels{i}).k;
-    rad_ex = PreParams.(channels{i}).ex;
-    dark = PreParams.(channels{i}).dark;
-    shade = PreParams.(channels{i}).shade;
+for channel = fieldnames(PreParams)';
+    channel = channel{1};  %#ok<FXSET>
+    imgNames = file_search(['.*' channel '.TIF'],folder);
+    if (isempty(imgNames))
+        continue;
+    end
+    reg_x = PreParams.(channel).xshift;
+    reg_y = PreParams.(channel).yshift;
+    rad_k = PreParams.(channel).k;
+    rad_ex = PreParams.(channel).ex;
+    dark = PreParams.(channel).dark;
+    shade = PreParams.(channel).shade;
     
     if (i_p.Results.status_messages)
-        fprintf('Starting on channel %s (%d/%d)\n',channels{i},i,length(channels));
+        fprintf('Starting on channel %s.\n',channel);
     end
     
     for j = 1:length(imgNames)
