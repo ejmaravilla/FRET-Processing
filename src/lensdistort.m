@@ -1,4 +1,4 @@
-function I2 = lensdistort1(I, k, ex, varargin)
+function I2 = lensdistort(I, k, ex, varargin)
 %LENSDISTORT corrects for barrel and pincusion lens abberations
 %   I = LENSDISTORT(I, k)corrects for radially symmetric distortions, where
 %   I is the input image and k is the distortion parameter. lens distortion
