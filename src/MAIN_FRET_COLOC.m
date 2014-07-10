@@ -5,7 +5,6 @@ clc;
 prefix = '';
 
 %% Get Information
-
 folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1Achannel.TIF", "exp_01_w2FRETchannel.TIF",\n"exp_01_w3Dchannel.TIF", and "exp_01_w4Schannel.TIF": ','s');
 SaveParams = GetInfo_FRET_Coloc(folder);
 
