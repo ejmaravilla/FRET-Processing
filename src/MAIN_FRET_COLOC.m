@@ -10,9 +10,8 @@ SaveParams = GetInfo_FRET_Coloc_pre(folder);
 
 %% Preprocess images using PreParams.mat file in GoogleDrive (Protocols -> Analysis Protocols -> FRET)
 rehash
-channels = {SaveParams.Achannel SaveParams.FRETchannel SaveParams.Dchannel SaveParams.Schannel};
 if isempty(file_search('pre_\w+',folder))
-    preprocess(channels,'PreParams\w+.mat',folder)
+    preprocess(fullfile('PreParams','PreParams_60x_default.mat'),folder)
 end
 prefix = 'pre_';
 
