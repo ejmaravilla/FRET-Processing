@@ -40,7 +40,7 @@ for (@files) {
 		system("ln -s \"../../images/$filename\" \"$results_dir/$1/Venus/$filename\"\n");
 	} elsif ($_ =~ /cna_pre_(.*?)_\d+/) {
 		make_path("$results_dir/$1/FRET");
-		system("ln -s \"../../$filename\" \"$results_dir/$1/FRET/$filename\"\n");
+		system("ln -s \"../../images/$filename\" \"$results_dir/$1/FRET/$filename\"\n");
 	} elsif ($_ =~ /SaveParams/) {
 		#don't mark SaveParams for deletion
 	} else {
@@ -48,4 +48,4 @@ for (@files) {
 	}
 }
 
-unlink @unrefed_files;
+# unlink @unrefed_files;
