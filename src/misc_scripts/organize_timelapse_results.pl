@@ -47,6 +47,10 @@ for (@files) {
 		my $target_folder = "$results_dir/$1/$2/FRET";
 		make_path("$target_folder");
 		system("ln -s \"../../../images/$filename\" \"$target_folder/$filename\"\n");
+	} elsif ($_ =~ /bsd_pre_(.*?)_w.*_s(\d+)_t\d+/) {
+		my $target_folder = "$results_dir/$1/$2/Donor";
+		make_path("$target_folder");
+		system("ln -s \"../../../images/$filename\" \"$target_folder/$filename\"\n");
 	} elsif ($_ =~ /SaveParams/) {
 		#don't mark SaveParams for deletion
 	} else {
