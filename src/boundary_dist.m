@@ -20,6 +20,9 @@ if strcmpi(closed_open,'closed') && strcmpi(manual,'y') && strcmpi(pre_exist,'n'
     cell_convex_area_col = zeros(m,1);
     cell_per_col = zeros(m,1);
     cell_center_dist_col = zeros(m,1);
+    cell_major_axis_length_col = zeros(m,1);
+    cell_minor_axis_length_col = zeros(m,1);
+    cell_orientation_col = zeros(m,1);
     for i = 1:o
         im = imread(files{i});
         [im_w, im_h] = size(im);
@@ -35,6 +38,9 @@ if strcmpi(closed_open,'closed') && strcmpi(manual,'y') && strcmpi(pre_exist,'n'
         cell_convex_area = zeros(length(rows),cell_num);
         cell_per = zeros(length(rows),cell_num);
         cell_center_dist = zeros(length(rows),cell_num);
+        cell_major_axis_length = zeros(length(rows),cell_num);
+        cell_minor_axis_length = zeros(length(rows),cell_num);
+        cell_orientation = zeros(length(rows),cell_num);
         for k = 1:cell_num
             v = 1;
             while v == 1;
@@ -50,7 +56,12 @@ if strcmpi(closed_open,'closed') && strcmpi(manual,'y') && strcmpi(pre_exist,'n'
             save(fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),'P','-ascii')
             rehash
             if strcmpi(reg_calc,'y')
-                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k), cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k), cell_per(:,k), cell_center_dist(:,k)] = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
+                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k),...
+                    cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k),...
+                    cell_per(:,k), cell_center_dist(:,k), cell_major_axis_length(:,k),...
+                    cell_minor_axis_length(:,k), cell_orientation(:,k)]...
+                    = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_'...
+                    files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
             elseif strcmpi(reg_calc,'n')
                 [cell_col_img(:,k),dists_img(:,k)] = app_poly_blobs(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),i,k,num_channel);
             end
@@ -65,8 +76,11 @@ if strcmpi(closed_open,'closed') && strcmpi(manual,'y') && strcmpi(pre_exist,'n'
             cell_convex_area_col(rows) = sum(cell_convex_area,2);
             cell_per_col(rows) = sum(cell_per,2);
             cell_center_dist_col(rows) = sum(cell_center_dist,2);
+            cell_major_axis_length_col(rows) = sum(cell_major_axis_length,2);
+            cell_minor_axis_length_col(rows) = sum(cell_minor_axis_length,2);
+            cell_orientation_col(rows) = sum(cell_orientation,2);
             close all;
-            newcols = [dist_col cell_col cell_area_col cell_ecc_col cell_cent_x_col cell_cent_y_col cell_convex_area_col cell_per_col cell_center_dist_col];
+            newcols = [dist_col cell_col cell_area_col cell_ecc_col cell_cent_x_col cell_cent_y_col cell_convex_area_col cell_per_col cell_center_dist_col cell_major_axis_length_col cell_minor_axis_length_col cell_orientation_col];
         elseif strcmpi(reg_calc,'n')
             cell_col(rows) = sum(cell_col_img,2); % Fix for overlapping boundaries
             dist_col(rows) = sum(dists_img,2);
@@ -123,6 +137,9 @@ elseif strcmpi(closed_open,'closed') && strcmpi(manual,'n') && strcmpi(pre_exist
     cell_convex_area_col = zeros(m,1);
     cell_per_col = zeros(m,1);
     cell_center_dist_col = zeros(m,1);
+    cell_major_axis_length_col = zeros(m,1);
+    cell_minor_axis_length_col = zeros(m,1);
+    cell_orientation_col = zeros(m,1);
     ratioThresh = rat;
     for i = 1:o
         P0 = cell_outline_simple(files{i},ratioThresh,folder);
@@ -138,9 +155,12 @@ elseif strcmpi(closed_open,'closed') && strcmpi(manual,'n') && strcmpi(pre_exist
         cell_convex_area = zeros(length(rows),cell_num);
         cell_per = zeros(length(rows),cell_num);
         cell_center_dist = zeros(length(rows),cell_num);
+        cell_major_axis_length = zeros(length(rows),cell_num);
+        cell_minor_axis_length = zeros(length(rows),cell_num);
+        cell_orientation = zeros(length(rows),cell_num);
         for k = 1:cell_num
             if strcmpi(reg_calc,'y')
-                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k), cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k), cell_per(:,k), cell_center_dist(:,k)] = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
+                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k), cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k), cell_per(:,k), cell_center_dist(:,k), cell_major_axis_length(:,k), cell_minor_axis_length(:,k), cell_orientation(:,k)] = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
             elseif strcmpi(reg_calc,'n')
                 [cell_col_img(:,k),dists_img(:,k)] = app_poly_blobs(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),i,k,num_channel);
             end
@@ -155,8 +175,11 @@ elseif strcmpi(closed_open,'closed') && strcmpi(manual,'n') && strcmpi(pre_exist
             cell_convex_area_col(rows) = sum(cell_convex_area,2);
             cell_per_col(rows) = sum(cell_per,2);
             cell_center_dist_col(rows) = sum(cell_center_dist,2);
+            cell_major_axis_length_col(rows) = sum(cell_major_axis_length,2);
+            cell_minor_axis_length_col(rows) = sum(cell_minor_axis_length,2);
+            cell_orientation_col(rows) = sum(cell_orientation,2);
             close all;
-            newcols = [dist_col cell_col cell_area_col cell_ecc_col cell_cent_x_col cell_cent_y_col cell_convex_area_col cell_per_col cell_center_dist_col];
+            newcols = [dist_col cell_col cell_area_col cell_ecc_col cell_cent_x_col cell_cent_y_col cell_convex_area_col cell_per_col cell_center_dist_col cell_major_axis_length_col cell_minor_axis_length_col cell_orientation_col];
         elseif strcmpi(reg_calc,'n')
             cell_col(rows) = sum(cell_col_img,2); % Fix for overlapping boundaries
             dist_col(rows) = sum(dists_img,2);
@@ -180,6 +203,9 @@ elseif strcmpi(pre_exist,'y')
     cell_convex_area_col = zeros(m,1);
     cell_per_col = zeros(m,1);
     cell_center_dist_col = zeros(m,1);
+    cell_major_axis_length_col = zeros(m,1);
+    cell_minor_axis_length_col = zeros(m,1);
+    cell_orientation_col = zeros(m,1);
     for i = 1:o
         im = imread(files{i});
         poly_files = file_search(['poly_cell\d+_' files{i}(1:end-4) '.dat'],folder);
@@ -195,6 +221,9 @@ elseif strcmpi(pre_exist,'y')
         cell_convex_area = zeros(length(rows),cell_num);
         cell_per = zeros(length(rows),cell_num);
         cell_center_dist = zeros(length(rows),cell_num);
+        cell_major_axis_length = zeros(length(rows),cell_num);
+        cell_minor_axis_length = zeros(length(rows),cell_num);
+        cell_orientation = zeros(length(rows),cell_num);
         for k = 1:cell_num
             P = load(poly_files{k});
             mask1 = poly2mask(P(:,1), P(:,2), im_w, im_h);
@@ -202,7 +231,7 @@ elseif strcmpi(pre_exist,'y')
             imwrite2tif(mask,[],fullfile(folder,['polymask_cell' num2str(k) '_' files{i}]),'single');
             rehash
             if strcmpi(reg_calc,'y')
-                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k), cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k), cell_per(:,k), cell_center_dist(:,k)] = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
+                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k), cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k), cell_per(:,k), cell_center_dist(:,k), cell_major_axis_length(:,k), cell_minor_axis_length(:,k), cell_orientation(:,k)] = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
             elseif strcmpi(reg_calc,'n')
                 [cell_col_img(:,k),dists_img(:,k)] = app_poly_blobs(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),i,k,num_channel);
             end
@@ -217,8 +246,11 @@ elseif strcmpi(pre_exist,'y')
             cell_convex_area_col(rows) = sum(cell_convex_area,2);
             cell_per_col(rows) = sum(cell_per,2);
             cell_center_dist_col(rows) = sum(cell_center_dist,2);
+            cell_major_axis_length_col(rows) = sum(cell_major_axis_length,2);
+            cell_minor_axis_length_col(rows) = sum(cell_minor_axis_length,2);
+            cell_orientation_col(rows) = sum(cell_orientation,2);
             close all;
-            newcols = [dist_col cell_col cell_area_col cell_ecc_col cell_cent_x_col cell_cent_y_col cell_convex_area_col cell_per_col cell_center_dist_col];
+            newcols = [dist_col cell_col cell_area_col cell_ecc_col cell_cent_x_col cell_cent_y_col cell_convex_area_col cell_per_col cell_center_dist_col cell_major_axis_length_col cell_minor_axis_length_col cell_orientation_col];
         elseif strcmpi(reg_calc,'n')
             cell_col(rows) = sum(cell_col_img,2); % Fix for overlapping boundaries
             dist_col(rows) = sum(dists_img,2);
