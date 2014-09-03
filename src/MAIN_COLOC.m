@@ -5,54 +5,15 @@ clc;
 prefix = '';
 
 %% Get Information
-folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1channel1.TIF" and "exp_01_w2channel2.TIF": ','s');
-SaveParams = GetInfo_Coloc(folder);
-    
-%% Crop & Register Images if Desired
-rehash
-if strcmpi(SaveParams.crop,'y')
-    if isempty(file_search('crop_\w+',folder))
-        img_cropper('\w+.TIF',folder)
-    end
-    prefix = ['crop_' prefix];
-end
-if strcmpi(SaveParams.reg,'y')
-    if isempty(file_search('reg_\w+',folder)) % double check cropping
-        img_reg(prefix,SaveParams.mag,folder)
-    end
-    prefix = ['reg_' prefix];
-end
+folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1channel1.TIF" and "exp_01_w2channel2.TIF" : ','s');
+SaveParams = GetInfo_Coloc_pre(folder);
 
-%% Shade Correct Images if Desired
+%% Preprocess images using PreParams.mat file in GoogleDrive (Protocols -> Analysis Protocols -> FRET)
 rehash
-if strcmpi(SaveParams.shadecorrect,'y') && isempty(file_search('sc_\w+',folder))
-    for i = 1:SaveParams.num_exp
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.channel1 '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.channel1 '.TIF'],folder);
-        shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.channel2 '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.channel2 '.TIF'],folder);
-    end
-    shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.channel1 '.TIF'],[prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.channel1 '.TIF'],folder);
-    shade_correct([prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.channel2 '.TIF'],[prefix SaveParams.shade_pre '\w+\d+\w+' SaveParams.channel2 '.TIF'],folder);
+if isempty(file_search('pre_\w+',folder))
+    preprocess(fullfile(folder,'PreParams_60x_default.mat'),folder)
 end
-
-if strcmpi(SaveParams.shadecorrect,'y');
-    prefix = ['sc_' prefix];
-end
-
-%% Background Subtract
-rehash
-if isempty(file_search('bs_\w+',folder));
-    params.bin = 1;
-    params.nozero = 0;
-    imgs = file_search([prefix '\w+.TIF'],folder);
-    for i = 1:length(imgs)
-        a = double(imread(imgs{i}));
-        imout = bs_ff(a,params);
-        imwrite2tif(imout,[],fullfile(folder,['bs_' imgs{i}]),'single');
-    end
-end
-prefix = ['bs_' prefix];
-param.sourcefolder = folder;
-param.destfolder = folder;
+prefix = 'pre_';
 
 %% Optimize FA params
 rehash
@@ -75,7 +36,7 @@ end
 rehash
 if strcmpi(SaveParams.find_blobs,'y') && isempty(file_search('fa_\w+',folder))
     for i = 1:SaveParams.num_exp
-        fa_gen_Coloc([prefix SaveParams.exp_cell{i} '\w+' SaveParams.blob_channel '.TIF'],SaveParams.blob_params,param.destfolder,SaveParams.extra_bkg)
+        fa_gen([prefix SaveParams.exp_cell{i} '\w+' SaveParams.blob_channel '.TIF'],SaveParams.blob_params,folder)
     end
 end
 
@@ -85,9 +46,9 @@ if strcmpi(SaveParams.analyze_blobs,'y')
     for i = 1:SaveParams.num_exp
         keywords(i).sizemin = 0;
         keywords(i).sizemax = 10000;
-        keywords(i).folder = param.destfolder;
-        pre_outname1 = file_search([prefix SaveParams.exp_cell{i} '\w+' SaveParams.channel1 '.TIF'],folder);
-        pre_outname2 = pre_outname1{1}(1:end-(10+length(SaveParams.channel1)));
+        keywords(i).folder = folder;
+        pre_outname1 = file_search([prefix SaveParams.exp_cell{i} '\w+' SaveParams.blob_channel '.TIF'],folder);
+        pre_outname2 = pre_outname1{1}(1:end-(10+length(SaveParams.blob_channel)));
         keywords(i).outname = pre_outname2;
         if length(file_search('blb_anl\w+.txt',folder)) < i
             blob_analyze({[prefix SaveParams.exp_cell{i} '\w+' SaveParams.channel1 '.TIF'],[prefix SaveParams.exp_cell{i} '\w+' SaveParams.channel2 '.TIF'],['fa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},keywords(i))
@@ -96,7 +57,7 @@ if strcmpi(SaveParams.analyze_blobs,'y')
 end
 rehash
 if strcmpi(SaveParams.analyze_blobs,'y') && isempty(file_search('masked\w+.TIF',folder))
-    app_mask_Coloc(SaveParams.channel1,SaveParams.channel2,param.destfolder)
+    app_mask_Coloc(SaveParams.channel1,SaveParams.channel2,folder)
 end
 
 %% Select Boundaries and calculate boundary properties
