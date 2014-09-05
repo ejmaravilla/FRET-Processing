@@ -15,6 +15,14 @@ if isempty(file_search('pre_\w+',folder))
 end
 prefix = 'pre_';
 
+%% Do additional local background subtraction to get rid of cytosolic signal
+rehash
+if strcmpi(SaveParams.local_bs,'y')
+    for i = 1:SaveParams.num_exp
+        local_bs([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.channel1 '.TIF'],[prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.channel2 '.TIF'],33,folder);
+    end
+end
+
 %% Optimize FA params
 rehash
 if strcmpi(SaveParams.find_blobs,'y') && strcmpi(SaveParams.optimize,'y') && isempty(file_search('fa_\w+.TIF',folder))
@@ -52,6 +60,9 @@ if strcmpi(SaveParams.analyze_blobs,'y')
         keywords(i).outname = pre_outname2;
         if length(file_search('blb_anl\w+.txt',folder)) < i
             blob_analyze({[prefix SaveParams.exp_cell{i} '\w+' SaveParams.channel1 '.TIF'],[prefix SaveParams.exp_cell{i} '\w+' SaveParams.channel2 '.TIF'],['fa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},keywords(i))
+            if strcmpi(SaveParams.local_bs,'y')
+                blob_analyze({['bslocal_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.channel1 '.TIF'],['bslocal_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.channel2 '.TIF'],['fa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},keywords(i))
+            end
         end
     end
 end
