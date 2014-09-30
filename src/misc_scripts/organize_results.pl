@@ -25,7 +25,8 @@ make_path($images_dir);
 
 for (@files) {
 	next if -d $_;
-
+	next if (/\.svg$/);
+	next if (/\.R$/);
 	move($_,"$images_dir");
 }
 
