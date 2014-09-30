@@ -94,24 +94,24 @@ fr = file_search(fexp,param.sourcefolder);
 
 % Check images found
 if isempty(af)
-    disp('WARNING, No Acceptor Images')
+    warning(['No Acceptor Images found, searched using: ',aexp])
 end
 if isempty(df)
-    disp('WARNING, No Donor Images')
+    warning(['No Donor Images, searched using: ',dexp])
 end
 if isempty(fr)
-    disp('WARNING, No FRET Images')
+    warning(['No FRET Images, searched using: ', fexp])
 end
 
 % Check number of images
 if length(af)~=length(df)
-    disp('WARNING, Number of Donor and Acceptor Images Not the Same')
+    warning('Number of Donor and Acceptor Images Not the Same')
 end
 if length(af)~=length(fr)
-    disp('WARNING, Number of FRET and Acceptor Images Not the Same')
+    warning('Number of FRET and Acceptor Images Not the Same')
 end
 if length(df)~=length(fr)
-    disp('WARNING, Number of Donor and FRET Images Not the Same')
+    warning('Number of Donor and FRET Images Not the Same')
 end
 
 abt = double(abtfn{1});
