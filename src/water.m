@@ -120,7 +120,8 @@ labelMat = floor(labelMat);             %set any 0.1 to 0
 labelMat = full(labelMat);              %convert back to full matrix format
 
 final = labelMat(2:(size(labelMat,1)-1), 2:(size(labelMat,2)-1)); %remove padding
-
+% fill holes in FAs
+final = imfill(final,'holes');
 % rgb = label2rgb(final, 'jet', 'k', 'shuffle');
 % figure
 % subplot(1,2,1);
