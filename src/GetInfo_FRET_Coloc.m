@@ -29,22 +29,22 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
     elseif strcmpi(SaveParams.bt,'n');
         SaveParams.dthres = 500;
         SaveParams.athres = 800;
-        if strcmpi(SaveParams.mag,'40x') && strcmpi(SaveParams.temperature,'23C') && strcpmi(SaveParams.ND,'ND50')
+        if strcmpi(SaveParams.mag,'40x') && strcmpi(SaveParams.temperature,'23C') && strcmpi(SaveParams.ND,'ND50')
             SaveParams.abt = 0.26;
             SaveParams.dbt = 0.95;
-        elseif strcmpi(SaveParams.mag,'40x') && strcmpi(SaveParams.temperature,'23C') && strcpmi(SaveParams.ND,'ND100')
+        elseif strcmpi(SaveParams.mag,'40x') && strcmpi(SaveParams.temperature,'23C') && strcmpi(SaveParams.ND,'ND100')
             SaveParams.abt = 0.27;
             SaveParams.dbt = 0.95;
-        elseif strcmpi(SaveParams.mag,'60x') && strcmpi(SaveParams.temperature,'23C') && strcpmi(SaveParams.ND,'ND50')
+        elseif strcmpi(SaveParams.mag,'60x') && strcmpi(SaveParams.temperature,'23C') && strcmpi(SaveParams.ND,'ND50')
             SaveParams.abt = 0.24;
             SaveParams.dbt = 0.94;
-        elseif strcmpi(SaveParams.mag,'60x') && strcmpi(SaveParams.temperature,'23C') && strcpmi(SaveParams.ND,'ND100')
+        elseif strcmpi(SaveParams.mag,'60x') && strcmpi(SaveParams.temperature,'23C') && strcmpi(SaveParams.ND,'ND100')
             SaveParams.abt = 0.27;
             SaveParams.dbt = 0.96;
-        elseif strcmpi(SaveParams.mag,'60x') && strcmpi(SaveParams.temperature,'37C') && strcpmi(SaveParams.ND,'ND50')
+        elseif strcmpi(SaveParams.mag,'60x') && strcmpi(SaveParams.temperature,'37C') && strcmpi(SaveParams.ND,'ND50')
             SaveParams.abt = 0.29;
             SaveParams.dbt = 1.06;
-        elseif strcmpi(SaveParams.mag,'60x') && strcmpi(SaveParams.temperature,'37C') && strcpmi(SaveParams.ND,'ND100')
+        elseif strcmpi(SaveParams.mag,'60x') && strcmpi(SaveParams.temperature,'37C') && strcmpi(SaveParams.ND,'ND100')
             SaveParams.abt = 0.31;
             SaveParams.dbt = 1.10;
         end
