@@ -6,12 +6,12 @@ prefix = '';
 
 %% Get Information
 folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1channel1.TIF" and "exp_01_w2channel2.TIF" : ','s');
-SaveParams = GetInfo_Coloc_pre(folder);
+SaveParams = GetInfo_Coloc(folder);
 
 %% Preprocess images using PreParams.mat file in GoogleDrive (Protocols -> Analysis Protocols -> FRET)
 rehash
 if isempty(file_search('pre_\w+',folder))
-    preprocess(fullfile(folder,'PreParams_60x_default.mat'),folder)
+    preprocess(fullfile(folder,'PreParams_60x_fixed.mat'),folder)
 end
 prefix = 'pre_';
 

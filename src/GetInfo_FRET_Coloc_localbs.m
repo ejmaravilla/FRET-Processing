@@ -1,4 +1,4 @@
-function SaveParams = GetInfo_FRET_Coloc(folder)
+function SaveParams = GetInfo_FRET_Coloc_localbs(folder)
 
 % A program allowing for the manual input of all parameters
 % for a FRET-coloc experiment.
@@ -10,8 +10,8 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
     for i = 1:SaveParams.num_exp
         SaveParams.exp_cell{i} = input('Enter an experimental group name \n(Ex. VinTS_Zyxin): ','s');
     end
-    SaveParams.num_channel = 4;
-    SaveParams.mag = input('What magnification were your images taken at ("40x" or "60x")? ','s');
+    SaveParams.num_channel = 5;
+    SaveParams.mag = input('What magnification were your images taken at (40x or 60x)? ','s');
     SaveParams.temperature = input('What temperature were your images taken at ("23C" or "37C")? ','s');
     SaveParams.ND = input('What ND filter was in when you took images ("ND100" or "ND50" etc...)? ','s');
     SaveParams.Achannel = input('What is your acceptor channel? ','s');
@@ -56,6 +56,7 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
     
     % Back to communal
     SaveParams.find_blobs = input('Would you like to find the blobs (y or n)? ','s');
+    SaveParams.local_bs = input('Would you like to do local background subtraction?\n(only recommended for stains with significant\ncytosolic signal)','s');
     if strcmpi(SaveParams.find_blobs,'y')
         SaveParams.blob_channel = SaveParams.Achannel;
         SaveParams.optimize = input('Would you like to optimize your blob params \nwith ParameterSelector (y or n)?','s');
