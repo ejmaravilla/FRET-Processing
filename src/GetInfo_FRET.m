@@ -3,7 +3,7 @@ function SaveParams = GetInfo_FRET(folder)
 % A program allowing for the manual input of all parameters
 % for a FRET experiment.
 
-if not(exist(fullfile(folder,'SaveParams.mat'),'file')) % Manually input and save parameters used in the analysis
+if not(exist(fullfile(folder,['SaveParams_' folder '.mat']),'file')) % Manually input and save parameters used in the analysis
     
     SaveParams.num_exp = input('How many experimental groups do you have? ');
     SaveParams.exp_cell = cell(1,SaveParams.num_exp);
@@ -93,8 +93,8 @@ if not(exist(fullfile(folder,'SaveParams.mat'),'file')) % Manually input and sav
         SaveParams.analyze_blobs = 'n';
         SaveParams.reg_select = 'n';
     end
-    save(fullfile(folder,'SaveParams.mat'),'-struct','SaveParams');
+    save(fullfile(folder,['SaveParams_' folder '.mat']),'-struct','SaveParams');
     
 else % Load the parameter file and save variables as the different parts of it
-    SaveParams = load(fullfile(folder,'SaveParams.mat'));
+    SaveParams = load(fullfile(folder,['SaveParams_' folder '.mat']));
 end
