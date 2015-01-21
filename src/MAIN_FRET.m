@@ -11,7 +11,7 @@ SaveParams = GetInfo_FRET(folder);
 %% Preprocess images using PreParams.mat file in GoogleDrive (Protocols -> Analysis Protocols -> FRET)
 rehash
 if isempty(file_search('pre_\w+',folder))
-    preprocess(fullfile(folder,'PreParams_60x_37C.mat'),folder)
+    preprocess(fullfile(folder,'PreParams_60x_fixed.mat'),folder)
 end
 prefix = 'pre_';
 
@@ -82,7 +82,7 @@ end
 rehash
 if strcmpi(SaveParams.find_blobs,'y') && isempty(file_search('fa_\w+',folder))
     for i = 1:SaveParams.num_exp
-        fa_gen(['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.blob_channel '.TIF'],SaveParams.blob_params,param.destfolder)
+        fa_gen(['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.blob_channel '.TIF'],SaveParams.blob_params,param.destfolder,SaveParams)
     end
 end
 
@@ -96,28 +96,46 @@ if strcmpi(SaveParams.analyze_blobs,'y')
         pre_outname1 = file_search([prefix SaveParams.exp_cell{i} '\w+' SaveParams.Achannel '.TIF'],folder);
         pre_outname2 = pre_outname1{1}(1:end-(10+length(SaveParams.Achannel)));
         keywords(i).outname = pre_outname2;
+        keywords(i).maskchannel = SaveParams.Achannel;
         if length(file_search('blb_anl\w+.txt',folder)) < i
-            blob_analyze({['cna_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.FRETchannel '.TIF'],['bsd_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Dchannel '.TIF'],['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Achannel '.TIF'],['fa_bsa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},keywords(i))
+            blob_analyze(...
+                {['cna_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.FRETchannel '.TIF'],...
+                ['bsd_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Dchannel '.TIF'],...
+                ['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Achannel '.TIF'],...
+                ['fa_bsa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},...
+                keywords(i))
         end
     end
 end
 rehash
 if strcmpi(SaveParams.analyze_blobs,'y') && isempty(file_search('masked\w+.TIF',folder))
-    app_mask_FRET(SaveParams.Achannel,SaveParams.Dchannel,SaveParams.FRETchannel,param.destfolder)
+    for i = 1:SaveParams.num_exp
+        app_mask(...
+            {['cna_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.FRETchannel '.TIF'],...
+            ['bsd_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Dchannel '.TIF'],...
+            ['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Achannel '.TIF'],...
+            ['fa_bsa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},SaveParams,SaveParams.Achannel)
+    end
 end
 
 %% Select Boundaries and calculate boundary properties
 rehash
 if strcmpi(SaveParams.reg_select,'y')
     for i = 1:SaveParams.num_exp
-        newcols = boundary_dist(['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],['blb_anl_' keywords(i).outname '.txt'],folder,SaveParams.closed_open,SaveParams.manual,SaveParams.reg_calc,SaveParams.rat,SaveParams.pre_exist,SaveParams.num_channel);
+        newcols = boundary_dist(...
+            ['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],...
+            ['blb_anl_' keywords(i).outname '.txt'],...
+            folder,...
+            SaveParams.manual,...
+            SaveParams.reg_calc,...
+            SaveParams.rat,...
+            SaveParams.pre_exist,...
+            SaveParams.num_channel);
         rehash
-        if strcmpi(SaveParams.closed_open,'closed')
-            img_names = file_search(['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],folder);
-            num_img = length(img_names);
-            for j = 1:num_img
-                mask_img(['polymask\w+' img_names{j}],folder)
-            end
+        img_names = file_search(['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],folder);
+        num_img = length(img_names);
+        for j = 1:num_img
+            mask_img(['polymask\w+' img_names{j}],folder)
         end
         app_cols_blb(['blb_anl_' keywords(i).outname '.txt'],newcols,folder,SaveParams.num_channel)
     end

@@ -5,13 +5,14 @@ function SaveParams = GetInfo_FRET_Coloc(folder)
 
 if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input and save parameters used in the analysis
     
+    SaveParams.folder = folder;
     SaveParams.num_exp = input('How many experimental groups do you have? ');
     SaveParams.exp_cell = cell(1,SaveParams.num_exp);
     for i = 1:SaveParams.num_exp
         SaveParams.exp_cell{i} = input('Enter an experimental group name \n(Ex. VinTS_Zyxin): ','s');
     end
-    SaveParams.num_channel = 4;
-    SaveParams.mag = input('What magnification were your images taken at ("40x" or "60x")? ','s');
+    SaveParams.num_channel = 8;
+    SaveParams.mag = input('What magnification were your images taken at (40x or 60x)? ','s');
     SaveParams.temperature = input('What temperature were your images taken at ("23C" or "37C")? ','s');
     SaveParams.ND = input('What ND filter was in when you took images ("ND100" or "ND50" etc...)? ','s');
     SaveParams.Achannel = input('What is your acceptor channel? ','s');
@@ -21,6 +22,13 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
     
     % Only for FRET
     SaveParams.bt = input('Calculate bleedthroughs (y or n)? ','s');
+    if strcmpi(SaveParams.temperature,'23C')
+        SaveParams.G = 2.09;
+        SaveParams.k = 0.779;
+    elseif strcmpi(SaveParams.temperature,'37C')
+        SaveParams.G = 2.74;
+        SaveParams.k = 0.684;
+    end
     if strcmpi(SaveParams.bt,'y');
         SaveParams.donor_pre = input('Enter donor image names (Ex. Teal): ','s');
         SaveParams.acceptor_pre = input('Enter donor image names (Ex. Venus): ','s');
@@ -52,18 +60,20 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
     SaveParams.correct = input('FRET correct (y or n)? ','s');
     if strcmpi(SaveParams.correct,'y')
         SaveParams.venus_thres = input('Set all pixels to zero below venus threshold (~100): ');
+        SaveParams.cal_curve = [0 0.25 0.75 1.25 1.75 2.25 2.75 3.25 3.75 4.25 4.75 5.25 5.75 6.25 6.75 7.25 7.75 8.25 8.75 9.25 9.75 10.25 10.75;0.2396 0.2364 0.2254 0.2099 0.1910 0.1702 0.1484 0.1265 0.1055 0.0860 0.0684 0.0532 0.0405 0.0305 0.0231 0.0181 0.0152 0.0139 0.0135 0.0133 0.0124 0.0097 0.0039]';
     end
     
     % Back to communal
     SaveParams.find_blobs = input('Would you like to find the blobs (y or n)? ','s');
     if strcmpi(SaveParams.find_blobs,'y')
         SaveParams.blob_channel = SaveParams.Achannel;
-        SaveParams.optimize = input('Would you like to optimize your blob params \nwith ParameterSelector (y or n)?','s');
+        SaveParams.optimize = input('Would you like to optimize your blob params on the Venus channel \nwith ParameterSelector (y or n)?','s');
         if strcmpi(SaveParams.optimize,'n')
             SaveParams.blob_params = input('Manually input params: ');
         elseif strcmpi(SaveParams.optimize,'y')
             SaveParams.blob_params = input('Starting params: ');
         end
+        SaveParams.bkg = input('You still have to use the optimizer for stain channel images.\nOn these images, how much would you like to subtract off an\ninitial background value (~100 works well for most stains)?');
         SaveParams.analyze_blobs = input('Would you like to analyze the blobs (y or n)? ','s');
         if strcmpi(SaveParams.analyze_blobs,'y')
             SaveParams.reg_select = input('Would you like to select boundaries/regions \non your images (y or n)? ','s');
@@ -72,22 +82,15 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
                 if strcmpi(SaveParams.pre_exist,'n');
                     SaveParams.manual = input('Manually select cell boundaries (y or n)? ', 's');
                     if strcmpi(SaveParams.manual,'y')
-                        SaveParams.closed_open = input('Will your boundaries be "closed" or "open"? ','s');
                         SaveParams.rat = 'N/A';
                     elseif strcmpi(SaveParams.manual,'n')
                         SaveParams.rat = input('What threshold ratio would you like to use \nto select cells (~0.5 is good for PXNrb stains)?');
-                        SaveParams.closed_open = 'closed';
                     end
                 elseif strcmpi(SaveParams.pre_exist,'y')
                     SaveParams.manual = 'y';
-                    SaveParams.closed_open = 'closed';
                     SaveParams.rat = 'N/A';
                 end
-                if strcmpi(SaveParams.closed_open, 'closed')
-                    SaveParams.reg_calc = input('Calculate region properties (size, eccentricity, y or n)? ', 's');
-                elseif strcmpi(SaveParams.closed_open, 'open')
-                    SaveParams.reg_calc = 'n';
-                end
+                SaveParams.reg_calc = input('Calculate region properties (size, eccentricity, y or n)? ', 's');
             end
         end
     elseif strcmpi(SaveParams.find_blobs,'n')

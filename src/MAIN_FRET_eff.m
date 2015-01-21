@@ -6,7 +6,7 @@ prefix = '';
 
 %% Get Information
 folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1Achannel.TIF" and "exp_01_w2FRETchannel.TIF",\n"exp_01_w3Dchannel.TIF" : ','s');
-SaveParams = GetInfo_FRET_Coloc(folder);
+SaveParams = GetInfo_FRET(folder);
 
 %% Preprocess images using PreParams.mat file in GoogleDrive (Protocols -> Analysis Protocols -> FRET)
 rehash
@@ -54,15 +54,14 @@ param.leave_neg = 1;
 param.ocimg = 1;
 if strcmpi(SaveParams.correct,'y') && isempty(file_search('cna_\w+.TIF',folder));
     for i = 1:length(SaveParams.exp_cell)
-        fret_correct_efficiency(...
-            [prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],...
+        fret_correct_efficiency([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],...
             [prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Dchannel '.TIF'],...
             [prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.FRETchannel '.TIF'],...
             SaveParams,param);
     end
 end
 
-%% Optimize FA params for Venus
+%% Optimize FA params
 rehash
 if strcmpi(SaveParams.find_blobs,'y') && strcmpi(SaveParams.optimize,'y') && isempty(file_search('fa_\w+.TIF',folder))
     WidthRange = [0,100];
@@ -79,47 +78,11 @@ if strcmpi(SaveParams.find_blobs,'y') && strcmpi(SaveParams.optimize,'y') && ise
     save(fullfile(pwd,folder,['SaveParams_' folder '.mat']),'-struct','SaveParams');
 end
 
-%% Optimize FA params for each Stain channel
-rehash
-if strcmpi(SaveParams.find_blobs,'y') && isempty(file_search('fa_\w+Cy5.TIF',folder))
-    WidthRange = [0,100];
-    ThreshRange = [0,10000];
-    MergeRange = [0,100];
-    for i = 1:SaveParams.num_exp;
-        StainParameterValues{i} = SaveParams.blob_params;
-        StainImageNames = file_search([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Schannel '.TIF'],folder);
-        StainImageName = StainImageNames{1};
-        StainImage = double(imread(StainImageName));
-        StainValues{i} = ParameterSelectorFunction(StainImage,WidthRange,ThreshRange,MergeRange,StainParameterValues{i});
-    end
-    SaveParams.blob_params_stain = StainValues;
-    save(fullfile(pwd,folder,['SaveParams_' folder '.mat']),'-struct','SaveParams');
-end
-
-%% Generate FA Masks on Venus channel
+%% Generate FA Masks
 rehash
 if strcmpi(SaveParams.find_blobs,'y') && isempty(file_search('fa_\w+',folder))
     for i = 1:SaveParams.num_exp
         fa_gen(['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.blob_channel '.TIF'],SaveParams.blob_params,param.destfolder,SaveParams)
-    end
-end
-
-%% Generate FA Masks on Stain channel
-rehash
-if strcmpi(SaveParams.find_blobs,'y') && isempty(file_search(['fa_\w+' SaveParams.Schannel '.TIF'],folder))
-    for i = 1:SaveParams.num_exp
-        fa_gen([prefix SaveParams.exp_cell{i} '\w+' SaveParams.Schannel '.TIF'],SaveParams.blob_params_stain{i},param.destfolder,SaveParams)
-    end
-end
-
-%% Do additional local background subtraction to get rid of cytosolic signal in staining channel
-rehash
-if isempty(file_search('bslocal1_\w+.TIF',folder))
-    for i = 1:SaveParams.num_exp
-        local_bs(...
-            [prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Schannel '.TIF'],...
-            ['fa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Schannel '.TIF'],...
-            60,0.2,folder);
     end
 end
 
@@ -148,9 +111,8 @@ if strcmpi(SaveParams.analyze_blobs,'y')
                 ['dpa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.FRETchannel '.TIF'],...
                 ['bsd_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Dchannel '.TIF'],...
                 ['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Achannel '.TIF'],...
-                [prefix SaveParams.exp_cell{i} '\w+' SaveParams.Schannel '.TIF'],...
-                ['bslocal1_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Schannel '.TIF'],...
-                ['fa_bsa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},keywords(i))
+                ['fa_bsa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},...
+                keywords(i))
         end
     end
 end
@@ -164,17 +126,20 @@ if strcmpi(SaveParams.analyze_blobs,'y') && isempty(file_search('masked\w+.TIF',
             ['dpa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.FRETchannel '.TIF'],...
             ['bsd_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Dchannel '.TIF'],...
             ['bsa_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Achannel '.TIF'],...
-            [prefix SaveParams.exp_cell{i} '\w+' SaveParams.Schannel '.TIF'],...
-            ['bslocal1_' prefix SaveParams.exp_cell{i} '\w+' SaveParams.Schannel '.TIF'],...
             ['fa_bsa_' prefix SaveParams.exp_cell{i} '\w+.TIF']},SaveParams,SaveParams.Achannel)
     end
 end
+
+% With extra FRET calculations, num_channels is now 6
+SaveParams.num_channel = 6;
+save(fullfile(pwd,folder, ['SaveParams_' folder '.mat']),'-struct','SaveParams');
 
 %% Select Boundaries and calculate boundary properties
 rehash
 if strcmpi(SaveParams.reg_select,'y')
     for i = 1:SaveParams.num_exp
-        newcols = boundary_dist(['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],...
+        newcols = boundary_dist(...
+            ['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],...
             ['blb_anl_' keywords(i).outname '.txt'],...
             folder,...
             SaveParams.manual,...
@@ -183,7 +148,7 @@ if strcmpi(SaveParams.reg_select,'y')
             SaveParams.pre_exist,...
             SaveParams.num_channel);
         rehash
-        img_names = file_search([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Schannel '.TIF'],folder);
+        img_names = file_search(['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.blob_channel '.TIF'],folder);
         num_img = length(img_names);
         for j = 1:num_img
             mask_img(['polymask\w+' img_names{j}],folder)
