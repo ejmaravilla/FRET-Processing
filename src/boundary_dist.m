@@ -1,11 +1,11 @@
-function newcols = boundary_dist(imgexp,filename,folder,closed_open,manual,reg_calc,rat,pre_exist,num_channel)
+function newcols = boundary_dist(imgexp,filename,folder,manual,reg_calc,rat,pre_exist,num_channel)
 
 % This function calculates the distance from the edge of provided blobs. It
-% functions on manually drawing closed/open polygons, providing pre-defined
-% polygons (must be closed?),or automatically generating closed polygons.
+% functions on manually drawing  polygons, providing pre-defined
+% polygons,or automatically generating polygons.
 
 img_col = 2*num_channel+7;
-if strcmpi(closed_open,'closed') && strcmpi(manual,'y') && strcmpi(pre_exist,'n')
+if strcmpi(manual,'y') && strcmpi(pre_exist,'n')
     files = file_search(imgexp,folder);
     d = load(filename);
     [m,~] = size(d);
@@ -80,60 +80,28 @@ if strcmpi(closed_open,'closed') && strcmpi(manual,'y') && strcmpi(pre_exist,'n'
             cell_minor_axis_length_col(rows) = sum(cell_minor_axis_length,2);
             cell_orientation_col(rows) = sum(cell_orientation,2);
             close all;
-            newcols = [dist_col...
-                cell_col...
+            newcols = [cell_col...
+                dist_col...
+                cell_center_dist_col...
                 cell_area_col...
-                cell_ecc_col...
-                cell_cent_x_col...
-                cell_cent_y_col...
                 cell_convex_area_col...
                 cell_per_col...
-                cell_center_dist_col...
                 cell_major_axis_length_col...
                 cell_minor_axis_length_col...
-                cell_orientation_col];
+                cell_major_axis_length_col./cell_minor_axis_length_col... % Changed from cell_ecc_col
+                cell_orientation_col...
+                cell_cent_x_col...
+                cell_cent_y_col];
+            newcols(isnan(newcols)) = 0;
         elseif strcmpi(reg_calc,'n')
             cell_col(rows) = sum(cell_col_img,2); % Fix for overlapping boundaries
             dist_col(rows) = sum(dists_img,2);
             close all;
-            newcols = [dist_col cell_col];
+            newcols = [cell_col dist_col];
         end
     end
     
-elseif strcmpi(closed_open,'open') && strcmpi(manual,'y') && strcmpi(pre_exist,'n')
-    files = file_search(imgexp,folder);
-    d = load(filename);
-    [m,~] = size(d);
-    u = unique(d(:,img_col));
-    [o,~] = size(u);
-    
-    dist_col = zeros(m,1);
-    for i = 1:o
-        im = imread(files{i});
-        figure; imagesc(im);
-        v = 1;
-        while v == 1;
-            M = imfreehand(gca,'Closed',0);
-            v = input('Keep region (yes = pressENTER, no = press1)?');
-        end
-        P0 = M.getPosition;
-        D = round([0; cumsum(sum(abs(diff(P0)),2))]);
-        P = interp1(D,P0,D(1):.5:D(end));
-        P = unique(round(P),'rows');
-        save(fullfile(pwd,folder,['line_' files{i}(1:end-4) '.dat']),'P','-ascii')
-        rows = find(d(:,img_col)==i);
-        dists_img = zeros(length(rows),1);
-        for j = 1:length(rows)
-            all_dist = sqrt((d(rows(j),1)-P(:,1)).^2 + (d(rows(j),2)-P(:,2)).^2);
-            min_dist = min(all_dist);
-            dists_img(j) = min_dist;
-        end
-        dist_col(rows) = dists_img;
-        newcols = dist_col;
-        close all;
-    end
-    
-elseif strcmpi(closed_open,'closed') && strcmpi(manual,'n') && strcmpi(pre_exist,'n')
+elseif strcmpi(manual,'n') && strcmpi(pre_exist,'n')
     files = file_search(imgexp,folder);
     d = load(filename);
     [m,~] = size(d);
@@ -190,12 +158,24 @@ elseif strcmpi(closed_open,'closed') && strcmpi(manual,'n') && strcmpi(pre_exist
             cell_minor_axis_length_col(rows) = sum(cell_minor_axis_length,2);
             cell_orientation_col(rows) = sum(cell_orientation,2);
             close all;
-            newcols = [dist_col cell_col cell_area_col cell_ecc_col cell_cent_x_col cell_cent_y_col cell_convex_area_col cell_per_col cell_center_dist_col cell_major_axis_length_col cell_minor_axis_length_col cell_orientation_col];
+            newcols = [cell_col...
+                dist_col...
+                cell_center_dist_col...
+                cell_area_col...
+                cell_convex_area_col...
+                cell_per_col...
+                cell_major_axis_length_col...
+                cell_minor_axis_length_col...
+                cell_major_axis_length_col./cell_minor_axis_length_col... % Changed from cell_ecc_col
+                cell_orientation_col...
+                cell_cent_x_col...
+                cell_cent_y_col];
+            newcols(isnan(newcols)) = 0;
         elseif strcmpi(reg_calc,'n')
             cell_col(rows) = sum(cell_col_img,2); % Fix for overlapping boundaries
             dist_col(rows) = sum(dists_img,2);
             close all;
-            newcols = [dist_col cell_col];
+            newcols = [cell_col dist_col];
         end
     end
     
@@ -261,12 +241,24 @@ elseif strcmpi(pre_exist,'y')
             cell_minor_axis_length_col(rows) = sum(cell_minor_axis_length,2);
             cell_orientation_col(rows) = sum(cell_orientation,2);
             close all;
-            newcols = [dist_col cell_col cell_area_col cell_ecc_col cell_cent_x_col cell_cent_y_col cell_convex_area_col cell_per_col cell_center_dist_col cell_major_axis_length_col cell_minor_axis_length_col cell_orientation_col];
+            newcols = [cell_col...
+                dist_col...
+                cell_center_dist_col...
+                cell_area_col...
+                cell_convex_area_col...
+                cell_per_col...
+                cell_major_axis_length_col...
+                cell_minor_axis_length_col...
+                cell_major_axis_length_col./cell_minor_axis_length_col... % Changed from cell_ecc_col
+                cell_orientation_col...
+                cell_cent_x_col...
+                cell_cent_y_col];
+            newcols(isnan(newcols)) = 0;
         elseif strcmpi(reg_calc,'n')
             cell_col(rows) = sum(cell_col_img,2); % Fix for overlapping boundaries
             dist_col(rows) = sum(dists_img,2);
             close all;
-            newcols = [dist_col cell_col];
+            newcols = [cell_col dist_col];
         end
     end
 end
