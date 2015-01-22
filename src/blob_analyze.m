@@ -162,7 +162,7 @@ for i = 1:nt
         end
     end
     for k = 1:nch-1
-        name = fullfile(keywords.folder, ['avg_' imgn{i,k}]);
+        name = fullfile(keywords.folder, ['avg_on_' keywords.maskchannel '_' imgn{i,k}]);
         imwrite2tif(starr(:,:,k),[],name,'single')
     end
 end
