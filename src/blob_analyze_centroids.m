@@ -108,14 +108,19 @@ for i = 1:nt
         tb = sum(mcimg);
         res(2) = sum(xind)./length(xind);
         res(1) = sum(yind)./length(yind);
-%         res(2) = sum(mcimg.*xind)/tb; % xind is actually columns, or y in traditional notation
-%         res(1) = sum(mcimg.*yind)/tb; % yind is actually rows, or x in traditional notation
         
         for k = 1:nch-1
-            res(2*k+1) = sum(imgarr{k}(in).*yind)./sum(imgarr{k}(in));
-            res(2*k+2) = sum(imgarr{k}(in).*xind)./sum(imgarr{k}(in));
+            if k <= 2 % assumes FRET index & FRET efficiency are first 2 channels
+                inv_img = 1./imgarr{k}(in);
+                res(2*k+1) = sum(inv_img.*yind)./sum(inv_img);
+                res(2*k+2) = sum(inv_img.*xind)./sum(inv_img);
+            else
+                res(2*k+1) = sum(imgarr{k}(in).*yind)./sum(imgarr{k}(in));
+                res(2*k+2) = sum(imgarr{k}(in).*xind)./sum(imgarr{k}(in));
+            end
             res(2*k+2*(nch-1)+1) = mean(imgarr{k}(in));
             res(2*k+2*(nch-1)+2) = std(imgarr{k}(in));
+            
         end
         if nwnz > 3;
             ysh = xind-res(2); % To match Brent's calculation
