@@ -166,7 +166,7 @@ for i = 1:nt
         sres = [sres ; res];
         for k = 1:nch-1
             for m = 1:nvecp
-                starr(xind(m),yind(m),k) = res(2*k+1);
+                starr(xind(m),yind(m),k) = res(2+2*(nch-1)+2*(k-1)+1);
             end
         end
     end
