@@ -171,7 +171,7 @@ for i = 1:nt
         end
     end
     for k = 1:nch-1
-        name = fullfile(keywords.folder, ['avg_' imgn{i,k}]);
+        name = fullfile(keywords.folder, ['avg_on_' keywords.maskchannel '_' imgn{i,k}]);
         imwrite2tif(starr(:,:,k),[],name,'single')
     end
 end
@@ -192,7 +192,7 @@ name = keywords.outname;
 
 tname = 'tavg_';
 save(fullfile(keywords.folder,[tname name '.txt']),'tavg','-ascii')
-save(fullfile(keywords.folder,['blb_anl_cent_' name '.txt']),'sres','-ascii')
+save(fullfile(keywords.folder,['blb_anl_' name '.txt']),'sres','-ascii')
 
 end
 
