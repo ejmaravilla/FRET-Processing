@@ -8,6 +8,14 @@ prefix = '';
 folder = input('Type the name of the folder that contains your images, \n make sure it is added to the path, \n and name your files so they look like \n"exp_01_w1Achannel.TIF" and "exp_01_w2FRETchannel.TIF",\n"exp_01_w3Dchannel.TIF" : ','s');
 SaveParams = GetInfo_FRET_Coloc(folder);
 
+%% If files are .lsm, convert to .TIF
+rehash
+if ~isempty(file_search('\w+.lsm',folder))
+    for i = 1:SaveParams.num_exp
+        lsm2tif1([SaveParams.exp_cell{i} '\w+.lsm'],folder,{SaveParams.Achannel, SaveParams.FRETchannel,SaveParams.Dchannel, SaveParams.Schannel});
+    end
+end
+
 %% Preprocess images using PreParams.mat file in GoogleDrive (Protocols -> Analysis Protocols -> FRET)
 rehash
 if isempty(file_search('pre_\w+',folder))
