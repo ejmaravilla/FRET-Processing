@@ -22,11 +22,11 @@ if not(exist(fullfile(folder,['SaveParams_' folder '.mat']),'file')) % Manually 
     % Only for FRET
     SaveParams.bt = input('Calculate bleedthroughs (y or n)? ','s');
     if strcmpi(SaveParams.temperature,'23C')
-        SaveParams.G = 2.09;
-        SaveParams.k = 0.779;
+        SaveParams.G = 2.65;
+        SaveParams.k = 0.68;
     elseif strcmpi(SaveParams.temperature,'37C')
-        SaveParams.G = 2.74;
-        SaveParams.k = 0.684;
+        SaveParams.G = 2.95;
+        SaveParams.k = 0.66;
     end
     if strcmpi(SaveParams.bt,'y');
         SaveParams.donor_pre = input('Enter donor image names (Ex. Teal): ','s');
