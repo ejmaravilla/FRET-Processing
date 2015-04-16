@@ -68,7 +68,7 @@ nch = szn(2);
 nt = szn(1);
 dims = size(double(imread(imgn{1,1})));
 
-resind = 2*(nch)+2*(nch-1);
+resind = 2*(nch)+2*(nch-1)+4;
 szstr = resind+1;
 ecstr = resind+2;
 orstr = resind+3;
@@ -80,6 +80,8 @@ nvec = length(colvec);
 
 res = zeros(1,resind+5);
 sres = [];
+
+lookup = load('freteff_force_lookup.txt');
 
 for i = 1:nt
     starr = zeros(dims(1),dims(2),nch-1);
@@ -114,12 +116,31 @@ for i = 1:nt
                 inv_img = 1./imgarr{k}(in);
                 res(2*k+1) = sum(inv_img.*yind)./sum(inv_img);
                 res(2*k+2) = sum(inv_img.*xind)./sum(inv_img);
+                res(2*k+2*(nch-1)+3) = mean(imgarr{k}(in));
+                res(2*k+2*(nch-1)+4) = std(imgarr{k}(in));
+                if k == 2
+                    % make next two cent columns equal to fret eff columns
+                    res(2*k+3) = res(2*k+1);
+                    res(2*k+4) = res(2*k+2);
+                    % make next two mean std columns force calculations
+                    effs = res(2*k+2*(nch-1)+3);
+                    forces = zeros(1,length(effs));
+                    for m = 1:length(effs)
+                        if effs(m) < min(lookup(:,1))
+                            effs(m) = min(lookup(:,1));
+                        elseif effs(m) > max(lookup(:,1))
+                            effs(m) = max(lookup(:,1));
+                        end
+                        forces(m) = lookup(round(effs(m),4) == lookup(:,1),2);
+                    end
+                    res(2*k+2*(nch-1)+5) = forces;
+                end
             else
-                res(2*k+1) = sum(imgarr{k}(in).*yind)./sum(imgarr{k}(in));
-                res(2*k+2) = sum(imgarr{k}(in).*xind)./sum(imgarr{k}(in));
+                res(2*k+3) = sum(imgarr{k}(in).*yind)./sum(imgarr{k}(in)); % increased index by two to account for forces
+                res(2*k+4) = sum(imgarr{k}(in).*xind)./sum(imgarr{k}(in));
+                res(2*k+2*(nch-1)+5) = mean(imgarr{k}(in));
+                res(2*k+2*(nch-1)+6) = std(imgarr{k}(in));
             end
-            res(2*k+2*(nch-1)+1) = mean(imgarr{k}(in));
-            res(2*k+2*(nch-1)+2) = std(imgarr{k}(in));
             
         end
         if nwnz > 3;
@@ -164,15 +185,35 @@ for i = 1:nt
         res(tstr) = i;
         
         sres = [sres ; res];
-        for k = 1:nch-1
-            for m = 1:nvecp
-                starr(xind(m),yind(m),k) = res(2+2*(nch-1)+2*(k-1)+1);
+        for k = 1:nch-1 % adjust to calculate avg image
+            if k <= 2
+                for m = 1:nvecp
+                    starr(xind(m),yind(m),k) = res(2+2*(nch-1)+2*(k-1)+3);
+                end
+                if k == 2
+                    for m = 1:nvecp
+                        starr(xind(m),yind(m),k+1) = res(2+2*(nch-1)+2*(k-1)+5);
+                    end
+                end
+            else
+                for m = 1:nvecp
+                    starr(xind(m),yind(m),k+1) = res(2+2*(nch-1)+2*(k-1)+5);
+                end
             end
         end
     end
     for k = 1:nch-1
-        name = fullfile(keywords.folder, ['avg_on_' keywords.maskchannel '_' imgn{i,k}]);
-        imwrite2tif(starr(:,:,k),[],name,'single')
+        if k<= 2
+            name = fullfile(keywords.folder, ['avg_on_' keywords.maskchannel '_' imgn{i,k}]);
+            imwrite2tif(starr(:,:,k),[],name,'single')
+            if k == 2
+                name = fullfile(keywords.folder,['avg_on_' keywords.maskchannel '_force_' imgn{i,k}]);
+                imwrite2tif(starr(:,:,k+1),[],name,'single')
+            end
+        else
+            name = fullfile(keywords.folder, ['avg_on_' keywords.maskchannel '_' imgn{i,k}]);
+            imwrite2tif(starr(:,:,k+1),[],name,'single')
+        end
     end
 end
 
