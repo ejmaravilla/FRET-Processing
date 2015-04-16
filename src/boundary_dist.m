@@ -4,7 +4,7 @@ function newcols = boundary_dist(imgexp,filename,folder,manual,reg_calc,rat,pre_
 % functions on manually drawing  polygons, providing pre-defined
 % polygons,or automatically generating polygons.
 
-img_col = 2*num_channel+7;
+img_col = 4*num_channel+7;
 if strcmpi(manual,'y') && strcmpi(pre_exist,'n')
     files = file_search(imgexp,folder);
     d = load(filename);
@@ -60,10 +60,11 @@ if strcmpi(manual,'y') && strcmpi(pre_exist,'n')
                     cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k),...
                     cell_per(:,k), cell_center_dist(:,k), cell_major_axis_length(:,k),...
                     cell_minor_axis_length(:,k), cell_orientation(:,k)]...
-                    = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_'...
+                    = app_poly_blobs_cells_new(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_'...
                     files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
             elseif strcmpi(reg_calc,'n')
-                [cell_col_img(:,k),dists_img(:,k)] = app_poly_blobs(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),i,k,num_channel);
+                [cell_col_img(:,k),dists_img(:,k)] = app_poly_blobs(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),...
+                    ['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
             end
         end
         if strcmpi(reg_calc,'y')

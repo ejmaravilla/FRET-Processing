@@ -2,7 +2,7 @@ function app_cols_blb(blb_file,newcols,folder,num_channel)
 
 % Adds columns to blob file
 
-img_col = 2*num_channel+7;
+img_col = 4*num_channel+7;
 d = load(blb_file);
 [~,w] = size(d);
 [~,n] = size(newcols);

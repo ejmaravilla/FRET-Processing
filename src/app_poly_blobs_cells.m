@@ -3,12 +3,11 @@ function [cell_col_img, dists_img, cell_area, cell_ecc, cell_cent_x, cell_cent_y
 % This function generates columns to add to blob files that contain cell
 % parameters along with distance from edge calculations
 
-img_col = 2*num_channel+7;
+img_col = 4*num_channel+7;
 mask = imread(maskfile);
 blb = load(blobfile);
 poly = load(polyfile);
 rows = find(blb(:,img_col)==imgnum); % Correspond to the image rows
-dists_img = zeros(length(rows),1);
 cell_area = zeros(length(rows),1);
 cell_ecc = zeros(length(rows),1);
 cell_convex_area = zeros(length(rows),1);
@@ -33,13 +32,14 @@ cell_minor_axis_length(:,1) = props.MinorAxisLength;
 cell_orientation(:,1) = -deg2rad(props.Orientation);
 
 inpoly = inpolygon(blb(rows,1),blb(rows,2),poly(:,1),poly(:,2));
+mask(mask > 0) = 1;
+inv_mask = imcomplement(mask);
+D = bwdist(inv_mask);
+Dinds = sub2ind(size(D),round(blb(rows,2)),round(blb(rows,1)));
+dists_img = D(Dinds);
 for j = 1:length(rows)
-    all_dist = sqrt((blb(rows(j),1)-poly(:,1)).^2 + (blb(rows(j),2)-poly(:,2)).^2);
-    min_dist = min(all_dist);
-    dists_img(j) = min_dist;
     cell_center_dist(j) = sqrt((blb(rows(j),1)-cell_cent_x(1,1)).^2 + (blb(rows(j),2)-cell_cent_y(1,1)).^2);
 end
-dists_img = dists_img.*inpoly;
 cell_col_img = inpoly.*cellnum;
 cell_area = cell_area.*inpoly;
 cell_ecc = cell_ecc.*inpoly;
