@@ -23,8 +23,13 @@ if isempty(file_search(['SaveParams_' folder '.mat'],folder)) % Manually input a
     % Only for FRET
     SaveParams.bt = input('Calculate bleedthroughs (y or n)? ','s');
     if strcmpi(SaveParams.temperature,'23C')
-        SaveParams.G = 2.65;
-        SaveParams.k = 0.68;
+        if strcmpi(SaveParams.mag,'60x')
+            SaveParams.G = 2.65;
+            SaveParams.k = 0.68;
+        elseif strcmpi(SaveParams.mag,'40x')
+            SaveParams.G = 3.08;
+            SaveParams.k = 0.855;
+        end
     elseif strcmpi(SaveParams.temperature,'37C')
         SaveParams.G = 2.95;
         SaveParams.k = 0.66;

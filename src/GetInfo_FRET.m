@@ -26,8 +26,8 @@ if not(exist(fullfile(folder,['SaveParams_' folder '.mat']),'file')) % Manually 
             SaveParams.G = 2.65;
             SaveParams.k = 0.68;
         elseif strcmpi(SaveParams.mag,'40x')
-            SaveParams.G = 2.81;
-            SaveParams.k = 0.845;
+            SaveParams.G = 3.08;
+            SaveParams.k = 0.855;
         end
     elseif strcmpi(SaveParams.temperature,'37C')
         SaveParams.G = 2.95;
