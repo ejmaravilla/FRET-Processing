@@ -1,15 +1,11 @@
 function SaveParams = make_experiment_properties_config
 
-SaveParams.folder = '../results/9-24-2014 EZR Cell Line Tests/';
+SaveParams.folder = '../results/3-31-2015 Blebbistatin 50uM/';
 
 % General Experiment Properties
 % Enter the names at the beginning of each type of experiment you want to
 % assess
-SaveParams.exp_cell = cell(1);
-SaveParams.exp_cell{end} = 'A431-TS';
-SaveParams.exp_cell{end+1} = 'A431-TL';
-SaveParams.exp_cell{end+1} = 'caco-TS';
-SaveParams.exp_cell{end+1} = 'caco-TL';
+SaveParams.exp_cell = {'EZR-TS_no_bleb','EZR-CTS_no_bleb','EZR-TS_bleb','EZR-CTS_bleb'};
 
 SaveParams.num_exp = length(SaveParams.exp_cell);
     
@@ -45,9 +41,6 @@ SaveParams.dbt = 0.90;
 %FRET Correction Settings
 % -correct: should we do FRET correction ('y' or 'n')
 SaveParams.correct = 'y';
-
-if strcmpi(SaveParams.correct,'y')
-    SaveParams.venus_thres = 100;
-end
+SaveParams.venus_thres = 100;
 
 save(fullfile(SaveParams.folder,'SaveParams.mat'),'-struct','SaveParams');
