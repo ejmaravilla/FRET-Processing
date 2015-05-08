@@ -32,7 +32,7 @@ PreParams = load(parameters_file);
 
 for channel = fieldnames(PreParams)';
     channel = channel{1};  %#ok<FXSET>
-    imgNames = file_search(['.*w\d+' channel '.TIF$'],folder);
+    imgNames = file_search(['.*w\d+' channel '.*.TIF$'],folder);
     if (isempty(imgNames))
         continue;
     end
