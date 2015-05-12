@@ -64,6 +64,10 @@ for (@files) {
 		my $target_folder = "$results_dir/$1/$2/Cherry";
 		make_path("$target_folder");
 		system("ln -s \"../../../images/$filename\" \"$target_folder/$filename\"\n");
+	} elsif ($filename =~ /(.*?)_w.*DIC_s(\d+)_t\d+/) {
+		my $target_folder = "$results_dir/$1/$2/DIC";
+		make_path("$target_folder");
+		system("ln -s \"../../../images/$filename\" \"$target_folder/$filename\"\n");
 	} elsif ($_ =~ /SaveParams/) {
 		#don't mark SaveParams for deletion
 	} else {
