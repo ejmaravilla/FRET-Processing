@@ -36,10 +36,13 @@ my @unrefed_files;
 
 for (@files) {
 	my $filename = basename($_);
-	if ($_ =~ /bsa_pre_(.*?)_\d+/) {
-		make_path("$results_dir/$1/Venus");
-		system("ln -s \"../../images/$filename\" \"$results_dir/$1/Venus/$filename\"\n");
-	} elsif ($_ =~ /cna_pre_(.*?)_\d+/) {
+	if ($_ =~ /bsa_pre_(.*?)_\d+_w/) {
+		make_path("$results_dir/$1/Acceptor");
+		system("ln -s \"../../images/$filename\" \"$results_dir/$1/Acceptor/$filename\"\n");
+	} elsif ($_ =~ /bsd_pre_(.*?)_\d+_w/) {
+		make_path("$results_dir/$1/Donor");
+		system("ln -s \"../../images/$filename\" \"$results_dir/$1/Donor/$filename\"\n");
+	} elsif ($_ =~ /cna_pre_(.*?)_\d+_w/) {
 		make_path("$results_dir/$1/FRET");
 		system("ln -s \"../../images/$filename\" \"$results_dir/$1/FRET/$filename\"\n");
 	} elsif ($_ =~ /SaveParams/) {
