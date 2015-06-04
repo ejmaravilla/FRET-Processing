@@ -3,8 +3,9 @@ function [cell_col_img, dists_img, cell_area, cell_ecc, cell_cent_x, cell_cent_y
 % This function generates columns to add to blob files that contain cell
 % parameters along with distance from edge calculations
 
-img_col = 4*num_channel+7;
-mask = imread(maskfile);
+img_col = 4*(num_channel+1)+7;
+
+mask = single(imread(maskfile));
 blb = load(blobfile);
 poly = load(polyfile);
 rows = find(blb(:,img_col)==imgnum); % Correspond to the image rows

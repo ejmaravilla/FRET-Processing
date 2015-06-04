@@ -2,8 +2,8 @@ function [cell_col_img,dists_img] = app_poly_blobs(blobfile,polyfile,maskfile,im
 
 % This function generates columns to add to blob files that contain distance from edge calculations
 
-mask = imread(maskfile);
-img_col = 4*num_channel+7;
+mask = single(imread(maskfile));
+img_col = 4*(num_channel+1)+7;
 blb = load(blobfile);
 poly = load(polyfile);
 rows = find(blb(:,img_col)==imgnum);

@@ -4,7 +4,8 @@ function newcols = boundary_dist(imgexp,filename,folder,manual,reg_calc,rat,pre_
 % functions on manually drawing  polygons, providing pre-defined
 % polygons,or automatically generating polygons.
 
-img_col = 4*num_channel+7;
+img_col = 4*(num_channel+1)+7;
+
 if strcmpi(manual,'y') && strcmpi(pre_exist,'n')
     files = file_search(imgexp,folder);
     d = load(filename);
@@ -24,9 +25,9 @@ if strcmpi(manual,'y') && strcmpi(pre_exist,'n')
     cell_minor_axis_length_col = zeros(m,1);
     cell_orientation_col = zeros(m,1);
     for i = 1:o
-        im = imread(files{i});
+        im = single(imread(files{i}));
         [im_w, im_h] = size(im);
-        figure; imagesc(im);
+        figure; imagesc(im,[0 4000]);
         cell_num = input('how many cells would you like to select?');
         rows = find(d(:,img_col)==i);
         dists_img = zeros(length(rows),cell_num);
@@ -52,7 +53,10 @@ if strcmpi(manual,'y') && strcmpi(pre_exist,'n')
             P = interp1(D,P0,D(1):.5:D(end));
             mask1 = poly2mask(P(:,1), P(:,2), im_w, im_h);
             mask = mat2gray(mask1);
-            imwrite2tif(mask,[],fullfile(folder,['polymask_cell' num2str(k) '_' files{i}]),'single');
+%             imwrite2tif(mask,[],fullfile(folder,['polymask_cell' num2str(k) '_' files{i}]),'single');
+            mask = mask./(2^8);
+            mask = im2uint8(mask);
+            imwrite(mask,fullfile(folder,['polymask_cell' num2str(k) '_' files{i}(1:end-4) '.png']));
             save(fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),'P','-ascii')
             rehash
             if strcmpi(reg_calc,'y')
@@ -60,11 +64,11 @@ if strcmpi(manual,'y') && strcmpi(pre_exist,'n')
                     cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k),...
                     cell_per(:,k), cell_center_dist(:,k), cell_major_axis_length(:,k),...
                     cell_minor_axis_length(:,k), cell_orientation(:,k)]...
-                    = app_poly_blobs_cells_new(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_'...
-                    files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
+                    = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_'...
+                    files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}(1:end-4) '.png'],i,k,num_channel);
             elseif strcmpi(reg_calc,'n')
                 [cell_col_img(:,k),dists_img(:,k)] = app_poly_blobs(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),...
-                    ['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
+                    ['polymask_cell' num2str(k) '_' files{i}(1:end-4) '.png'],i,k,num_channel);
             end
         end
         if strcmpi(reg_calc,'y')
@@ -140,7 +144,8 @@ elseif strcmpi(manual,'n') && strcmpi(pre_exist,'n')
         cell_orientation = zeros(length(rows),cell_num);
         for k = 1:cell_num
             if strcmpi(reg_calc,'y')
-                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k), cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k), cell_per(:,k), cell_center_dist(:,k), cell_major_axis_length(:,k), cell_minor_axis_length(:,k), cell_orientation(:,k)] = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
+                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k), cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k), cell_per(:,k), cell_center_dist(:,k), cell_major_axis_length(:,k), cell_minor_axis_length(:,k), cell_orientation(:,k)] = ...
+                    app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}(1:end-4) '.png'],i,k,num_channel);
             elseif strcmpi(reg_calc,'n')
                 [cell_col_img(:,k),dists_img(:,k)] = app_poly_blobs(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),i,k,num_channel);
             end
@@ -199,7 +204,7 @@ elseif strcmpi(pre_exist,'y')
     cell_minor_axis_length_col = zeros(m,1);
     cell_orientation_col = zeros(m,1);
     for i = 1:o
-        im = imread(files{i});
+        im = single(imread(files{i}));
         poly_files = file_search(['poly_cell\d+_' files{i}(1:end-4) '.dat'],folder);
         cell_num = length(poly_files);
         [im_w, im_h] = size(im);
@@ -220,10 +225,12 @@ elseif strcmpi(pre_exist,'y')
             P = load(poly_files{k});
             mask1 = poly2mask(P(:,1), P(:,2), im_w, im_h);
             mask = mat2gray(mask1);
-            imwrite2tif(mask,[],fullfile(folder,['polymask_cell' num2str(k) '_' files{i}]),'single');
+            mask = mask./(2^8);
+            mask = im2uint8(mask);
+            imwrite(mask,fullfile(folder,['polymask_cell' num2str(k) '_' files{i}(1:end-4) '.png']));
             rehash
             if strcmpi(reg_calc,'y')
-                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k), cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k), cell_per(:,k), cell_center_dist(:,k), cell_major_axis_length(:,k), cell_minor_axis_length(:,k), cell_orientation(:,k)] = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}],i,k,num_channel);
+                [cell_col_img(:,k),dists_img(:,k),cell_area(:,k),cell_ecc(:,k), cell_cent_x(:,k), cell_cent_y(:,k), cell_convex_area(:,k), cell_per(:,k), cell_center_dist(:,k), cell_major_axis_length(:,k), cell_minor_axis_length(:,k), cell_orientation(:,k)] = app_poly_blobs_cells(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),['polymask_cell' num2str(k) '_' files{i}(1:end-4) '.png'],i,k,num_channel);
             elseif strcmpi(reg_calc,'n')
                 [cell_col_img(:,k),dists_img(:,k)] = app_poly_blobs(filename,fullfile(pwd,folder,['poly_cell' num2str(k) '_' files{i}(1:end-4) '.dat']),i,k,num_channel);
             end

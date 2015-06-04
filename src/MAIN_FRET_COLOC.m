@@ -136,7 +136,7 @@ end
 rehash
 if strcmpi(SaveParams.analyze_blobs,'y')
     for i = 1:SaveParams.num_exp
-        keywords(i).sizemin = 0;
+        keywords(i).sizemin = 8;
         keywords(i).sizemax = 10000;
         keywords(i).folder = param.destfolder;
         pre_outname1 = file_search([prefix SaveParams.exp_cell{i} '\w+' SaveParams.Achannel '.TIF'],folder);
@@ -175,7 +175,7 @@ end
 rehash
 if strcmpi(SaveParams.reg_select,'y')
     for i = 1:SaveParams.num_exp
-        newcols = boundary_dist(['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],...
+        newcols = boundary_dist([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Schannel '.TIF'],...
             ['blb_anl_' keywords(i).outname '.txt'],...
             folder,...
             SaveParams.manual,...
@@ -184,10 +184,10 @@ if strcmpi(SaveParams.reg_select,'y')
             SaveParams.pre_exist,...
             SaveParams.num_channel);
         rehash
-        img_names = file_search(['bsa_' prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Achannel '.TIF'],folder);
+        img_names = file_search([prefix SaveParams.exp_cell{i} '\w+\d+\w+' SaveParams.Schannel '.TIF'],folder);
         num_img = length(img_names);
         for j = 1:num_img
-            mask_img(['polymask\w+' img_names{j}],folder)
+            mask_img(['polymask\w+' img_names{j}(1:end-4) '.png'],folder)
         end
         app_cols_blb(['blb_anl_' keywords(i).outname '.txt'],newcols,folder,SaveParams.num_channel)
     end
