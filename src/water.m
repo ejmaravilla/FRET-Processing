@@ -28,10 +28,6 @@ function final = water(imOrig,parray)
 %   changed line 60 to line 61 so that it was not always a true statement
 %   added line 53 to reinitialize the int array for each iteration
 
-%   water3 uses parameter 1 as the average filter high_pass_filt_width to
-%   perform the highpass filtering and has no size restriction on the focal
-%   adhesions
-%
 % This code 'water' should be considered 'freeware' and may be
 % distributed freely (outside of the military-industrial complex) in its
 % original form when properly attributed.
@@ -122,14 +118,8 @@ labelMat = full(labelMat);              %convert back to full matrix format
 final = labelMat(2:(size(labelMat,1)-1), 2:(size(labelMat,2)-1)); %remove padding
 % fill holes in FAs
 final = imfill(final,'holes');
-% rgb = label2rgb(final, 'jet', 'k', 'shuffle');
-% figure
-% subplot(1,2,1);
-% imagesc(imOrig);
-% subplot(1,2,2);
-% imagesc(rgb);
 
-return
+end
 
 %% Sub Functions
 
@@ -148,4 +138,4 @@ hood = [
     mat(r+1,c  )
     mat(r+1,c+1) 
     ];
-return
+end

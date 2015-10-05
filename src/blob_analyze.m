@@ -1,4 +1,4 @@
-function blob_analyze(bases,keywords)
+function col_labels = blob_analyze(bases,FRETeff,sizemin,sizemax,outname,maskchannel,folder)
 
 % A function to analyze the same blobs across images from different
 % channels using a provided mask.
@@ -7,11 +7,12 @@ function blob_analyze(bases,keywords)
 %   image channel that you would like to analyze separated by commas, with
 %   the last one being the regular expression for the masks (can use the
 %   results of fa_gen)
-%   keywords - a structure containing necessary parameters
-%       keywords.folder - name of the folder where images are contained
-%       keywords.sizemin - a threshold for size under which you will ignore blobs (usually set to 15 for focal adhesions)
-%       keywords.sizemax - a threshold for size over which you will ignore blobs (usually set to 10000 for focal adhesions)
-%       keywords.outname - what you would like to name your output file
+%   FRETeff - indicates whether FRET efficiency was calculated previously
+%   sizemin - minimum acceptable size for a structure in a mask
+%   sizemax - maximum acceptable size for a structure in a mask
+%   outname - name of the output file containing the data for each structure
+%   maskchannel - channel in which masks were generated
+%   folder - name of the folder containing the images
 % Outputs:
 %   blb file
 %       A txt file beginning with blb_anl_ that stores a bunch of data
@@ -26,33 +27,23 @@ function blob_analyze(bases,keywords)
 %           Col N*2+5 - orientation in radians of ellipse fit
 %           Col N*2+6 - blob identification number (from water)
 %           Col N*2+7 - frame/image number
-%   tavg file
-%       A txt file beginning with tavg_ that averages parameters across
-%       each frame/image number. Each row is a different frame/image and
-%       each column is the mean of the calculated values from blb file. N
-%       represents the number of image channels input.
-%           Col 1 - image/frame number
-%           Col 2:N*2 - average intensity of channels in an image/frame
-%           Col 3:N*2+1 - standard deviation of intensities in an image/frame
-%           Col N*2+2 - average size of blob in an image/frame
-%           Col N*2+3 - average axis ratio in an image/frame
-%           Col N*2+4 - average orientation in an image/frame
-%           Col N*2+5 - number of blobs in an image/frame
+%   blb excel file
+%       An .xlsx file containing all of the data from the blb file, but
+%       with column headers that describe the contents of each column
+%   col_labels
+%       Cell array containing a list of the column headers from the blb
+%       excel file.
 %   avg images
 %       A set of images beginning with avg_ that are the masked input
 %       images with the values contained in each blob averaged together to
 %       create a mean intensity for each blob.
 % Sample Call:
-%   keywords.sizemin = 15;
-%   keywords.sizemax = 10000;
-%   keywords.folder = 'Stain 101513';
-%   keywords.outname = fullfile(pwd,keywords.folder,'VTP Stain 101513');
-%   blob_analyze({'Vinculin_\d+_w1FW FITC.TIF','Talin_\d+_w2FW Cy5.TIF','Paxillin_\d+_w3FW TR.TIF','fa_Vinculin_\d+_w1FW FITC.TIF'},keywords)
+%   blob_analyze({'Vinculin_\d+_w1FW FITC.TIF','Talin_\d+_w2FW Cy5.TIF','Paxillin_\d+_w3FW TR.TIF','fa_Vinculin_\d+_w1FW FITC.TIF'},'n',8,5000,'VTP Stain 101513','FITC','Stain 101513')
 %   This applies the masks of the form fa_Vinculin_\d+_w1FW FITC.TIF to the
 %   three image channels (Vinculin, Talin, Paxillin), all found in the
-%   folder Stain 101513. It only looks at blobs of 15<size<10000. It will
-%   output two text files: blb_VTP Stain 101513.txt and tavg_VTP Stain 101513.txt
-%   along with a set of images starting with avg_
+%   folder Stain 101513. It only looks at blobs of 8<size<5000. It will
+%   output the text file: blb_anl_VTP Stain 101513.txt, and excel file:
+%   blb_anl_labels_VTP Stain 101513.xlsx, along with a set of images starting with avg_
 % Required Functions:
 %   file_search
 %   imwrite2tif
@@ -61,37 +52,36 @@ function blob_analyze(bases,keywords)
 % distributed freely (outside of the military-industrial complex) in its
 % original form when properly attributed.
 
-imgn = imgn_check(bases,keywords.folder);
+imgn = imgn_check(bases,folder);
 
 szn = size(imgn);
 nch = szn(2);
 nt = szn(1);
 dims = size(double(imread(imgn{1,1})));
 
-resind = 2+2*(nch-1);
+resind = 4*(nch-1)+3;
 szstr = resind+1;
 ecstr = resind+2;
 orstr = resind+3;
 idstr = resind+4;
 tstr = resind+5;
 
-colvec = [3:2:resind,resind+1:resind+3];
-nvec = length(colvec);
-
 res = zeros(1,resind+5);
+col_labels = cell(1,resind+5);
 sres = [];
+
+lookup = load('freteff_force_lookup.txt');
 
 for i = 1:nt
     starr = zeros(dims(1),dims(2),nch-1);
     imgarr = read_chnls(imgn(i,:));
-    
-    cimg = imgarr{nch-1};
     bimg = imgarr{nch}; % blob mask image
     
     sbimg = sort(bimg(:));
     [~,u] = unique(sbimg);
+    u = [u;numel(sbimg)];
     del = u-circshift(u,1);
-    wbe = find(del > keywords.sizemin & del < keywords.sizemax); % find large enough blobs
+    wbe = find(del > sizemin & del < sizemax); % find large enough blobs
     wbe = wbe-1;
     lim = length(wbe);
     
@@ -100,18 +90,56 @@ for i = 1:nt
         in = find(bimg == mp);
         nwnz = length(in);
         res(szstr) = nwnz;
+        if i == 1
+            col_labels{szstr} = 'Blob Area';
+            col_labels{ecstr} = 'Blob Axis Ratio';
+            col_labels{orstr} = 'Blob Orientation';
+            col_labels{idstr} = 'Blob ID';
+            col_labels{tstr} = 'Image ID';
+        end
         
         [xind,yind] = ind2sub(dims,in);
         nvecp = length(xind);
         
-        mcimg = cimg(in);
-        tb = sum(mcimg);
-        res(2) = sum(mcimg.*xind)/tb; % xind is actually columns, or y in traditional notation
-        res(1) = sum(mcimg.*yind)/tb; % yind is actually rows, or x in traditional notation
+        res(2) = sum(xind)./length(xind);
+        res(1) = sum(yind)./length(yind);
+        if i == 1
+            col_labels{2} = 'Geo Y';
+            col_labels{1} = 'Geo X';
+        end
         
         for k = 1:nch-1
-            res(2*k+1) = mean(imgarr{k}(in));
-            res(2*k+2) = std(imgarr{k}(in));
+            if isempty(strfind(bases{k},'cna')) || isempty(strfind(bases{k},'eff'))
+                calcimg = 1./imgarr{k}(in);
+            else
+                calcimg = imgarr{k}(in);
+            end
+            res(2*k+1) = sum(calcimg.*yind)./sum(calcimg);
+            res(2*k+2) = sum(calcimg.*xind)./sum(calcimg);
+            res(2*(nch-1)+2*(k-1)+3) = mean(imgarr{k}(in));
+            res(2*(nch-1)+2*(k-1)+4) = std(imgarr{k}(in));
+            if i == 1
+                col_labels{2*k+1} = [bases{k}(1:3) ' X'];
+                col_labels{2*k+2} = [bases{k}(1:3) ' Y'];
+                col_labels{2*(nch-1)+2*(k-1)+3} = [bases{k}(1:3) ' Mean'];
+                col_labels{2*(nch-1)+2*(k-1)+4} = [bases{k}(1:3) ' STD'];
+            end
+            if k == nch-1 && strcmpi(FRETeff,'y')
+                effs = res(2*(nch-1)+2*(k-1)+4);
+                forces = zeros(1,length(effs));
+                for m = 1:length(effs)
+                    if effs(m) < min(lookup(:,1))
+                        effs(m) = min(lookup(:,1));
+                    elseif effs(m) > max(lookup(:,1))
+                        effs(m) = max(lookup(:,1));
+                    end
+                    forces(m) = lookup(round(effs(m),4) == lookup(:,1),2);
+                end
+                res(2*(nch-1)+2*(k-1)+5) = forces;
+                if i == 1
+                    col_labels{2*(nch-1)+2*(k-1)+5} = 'Force';
+                end
+            end
         end
         if nwnz > 3;
             ysh = xind-res(2); % To match Brent's calculation
@@ -155,35 +183,33 @@ for i = 1:nt
         res(tstr) = i;
         
         sres = [sres ; res];
-        for k = 1:nch-1
+        for k = 1:nch-1 % adjust to calculate avg image
             for m = 1:nvecp
-                starr(xind(m),yind(m),k) = res(2*k+1);
+                starr(xind(m),yind(m),k) = res(2*(nch-1)+2*(k-1)+3);
+            end
+            if k == nch-1
+                for m = 1:nvecp
+                    starr(xind(m),yind(m),k+1) = res(2*(nch-1)+2*(k-1)+5);
+                end
             end
         end
     end
     for k = 1:nch-1
-        name = fullfile(keywords.folder, ['avg_on_' keywords.maskchannel '_' imgn{i,k}]);
+        name = fullfile(folder,'Average Images',['avg_on_' maskchannel '_' imgn{i,k}]);
         imwrite2tif(starr(:,:,k),[],name,'single')
+        if k == nch-1
+            name = fullfile(folder,'Average Images',['avg_on_' maskchannel '_force_' imgn{i,k}]);
+            imwrite2tif(starr(:,:,k+1),[],name,'single')
+        end
     end
 end
 
-tavg = zeros(nt,2*length(colvec)+2);
-for i = 1:nt
-    tavg(i,1) = i;
-    wfr = find(sres(:,tstr) == i);
-    nwfr = length(wfr);
-    tavg(i,2*length(colvec)+2) = nwfr;
-    for j = 1:nvec
-        tavg(i,2*(j-1)+2) = mean(sres(wfr,colvec(j)));
-        tavg(i,2*(j-1)+3) = std(sres(wfr,colvec(j)));
-    end
-end
+name = outname;
+save(fullfile(folder,['blb_anl_' name '.txt']),'sres','-ascii')
 
-name = keywords.outname;
-
-tname = 'tavg_';
-save(fullfile(keywords.folder,[tname name '.txt']),'tavg','-ascii')
-save(fullfile(keywords.folder,['blb_anl_' name '.txt']),'sres','-ascii')
+cell_final_data = num2cell(sres);
+cell_final_file = [col_labels; cell_final_data];
+xlswrite(fullfile(folder,['blb_anl_labels_' name '.xlsx']),cell_final_file)
 
 end
 

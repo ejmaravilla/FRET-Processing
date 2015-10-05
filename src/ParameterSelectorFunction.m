@@ -61,15 +61,15 @@ function [ParameterValues] = ParameterSelectorFunction(Image,WidthRange,ThreshRa
     hold off
 
     % Slider 1: Width
-    uicontrol('Parent',hFig,'Style','slider','Min',WidthRange(1),'Max',WidthRange(2),'Value',ParameterValues(1),'Position',[0 350 120 20],'Callback',@ChangeFA1); 
+    uicontrol('Parent',hFig,'Style','slider','Min',WidthRange(1),'Max',WidthRange(2),'Value',ParameterValues(1),'Position',[0 350 120 20],'SliderStep',[.05 .05],'Callback',@ChangeFA1); 
     hText1 = uicontrol('Style','text','Position',[0 370 120 20],'String',sprintf('Width: %d',ParameterValues(1)));
 
     % Slider 2: Threshold
-    uicontrol('Parent',hFig,'Style','slider','Min',ThreshRange(1),'Max',ThreshRange(2),'Value',ParameterValues(2),'Position',[0 290 120 20],'Callback',@ChangeFA2); 
+    uicontrol('Parent',hFig,'Style','slider','Min',ThreshRange(1),'Max',ThreshRange(2),'Value',ParameterValues(2),'Position',[0 290 120 20],'SliderStep',[.005 .005],'Callback',@ChangeFA2); 
     hText2 = uicontrol('Style','text','Position',[0 310 120 20],'String',sprintf('Thresh: %d',ParameterValues(2)));
 
     % Slider 3: Merge
-    uicontrol('Parent',hFig,'Style','slider','Min',MergeRange(1),'Max',MergeRange(2),'Value',ParameterValues(3),'Position',[0 230 120 20],'Callback',@ChangeFA3); 
+    uicontrol('Parent',hFig,'Style','slider','Min',MergeRange(1),'Max',MergeRange(2),'Value',ParameterValues(3),'Position',[0 230 120 20],'SliderStep',[.1 .1],'Callback',@ChangeFA3); 
     hText3 = uicontrol('Style','text','Position',[0 250 120 20],'String',sprintf('Merge: %d',ParameterValues(3)));
     
     w = waitforbuttonpress;

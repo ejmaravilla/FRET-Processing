@@ -15,7 +15,6 @@ function imgo = bs_ff(imgo,varargin)
 %INPUTS:
 % imgo - the image to be processed (REQUIRED)
 % bavg - the background image to subtract (optional)
-% bval - the background value to subtract (optional)
 
 % params will be a structure containing a field for each of the following
 % parameters:

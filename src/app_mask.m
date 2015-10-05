@@ -1,4 +1,4 @@
-function app_mask(bases,SaveParams,maskchannel)
+function app_mask(bases,maskchannel,folder)
 
 % A function to apply a mask to different
 % channels using a provided mask.
@@ -7,13 +7,12 @@ function app_mask(bases,SaveParams,maskchannel)
 %   image channel that you would like to mask separated by commas, with
 %   the last one being the regular expression for the masks (can use the
 %   results of fa_gen)
-%   SaveParams - a structure containing necessary parameters
-%       SaveParams.folder - name of the folder where images are contained
+%   maskchannel - the channel that you have chosen to mask the images with
+%   folder - name of the folder where images are contained
 % Outputs:
 %   masked images
-%       A set of images beginning with avg_ that are the masked input
-%       images with the values contained in each blob averaged together to
-%       create a mean intensity for each blob.
+%       A set of images beginning with masked_ that are the masked image
+%       channels based on the last image in bases
 % Sample Call:
 %   SaveParams.folder = 'FRET_test';
 %   app_mask_new({...
@@ -28,11 +27,11 @@ function app_mask(bases,SaveParams,maskchannel)
 %   file_search
 %   imwrite2tif
 %
-% This code 'app_mask_new' should be considered 'freeware' and may be
+% This code 'app_mask' should be considered 'freeware' and may be
 % distributed freely (outside of the military-industrial complex) in its
 % original form when properly attributed.
 
-imgn = imgn_check(bases,SaveParams.folder);
+imgn = imgn_check(bases,folder);
 szn = size(imgn);
 nch = szn(2);
 nt = szn(1);
@@ -40,13 +39,12 @@ nt = szn(1);
 for i = 1:nt % for each image (nt = number of timepoints or images)
     imgarr = read_chnls(imgn(i,:));
     
-    cimg = imgarr{nch-1};
     bimg = imgarr{nch}; % blob mask image
     bimg(bimg>0) = 1; % make blob mask image binary
     for j = 1:nch-1
         cimg = imgarr{j};
         cimg_masked = cimg.*bimg;
-        name = fullfile(SaveParams.folder,['masked_on_' maskchannel '_' imgn{i,j}]);
+        name = fullfile(folder,'Masked Images',['masked_on_' maskchannel '_' imgn{i,j}]);
         imwrite2tif(cimg_masked,[],name,'single');
     end
 end

@@ -1,26 +1,11 @@
-function fret_correct(aexp,dexp,fexp,abtfn,dbtfn,varargin)
-% outputs = fret_correct(af,df,fr,abtfn,dbtfn,params)
-% outputs = fret_correct(af,df,fr,abtfn,dbtfn,baf,bdf,bfr,params)
+function fret_correct(aexp,dexp,fexp,abt,dbt,imin,FRETeff,leave_neg,folder,varargin)
+% fret_correct(af,df,fr,abt,dbt,imin,FRETeff,leave_neg,folder) - if FRETeff is 'n'
+% fret_correct(af,df,fr,abt,dbt,imin,FRETeff,leave_neg,folder,G,k) - if FRET eff is 'y'
 
 % PURPOSE: A program to remove the intensity in a set of FRET images due to
-% bleed-throughs or cross-talks. Can do linear or non-linear bleedthroughs
-% and cross-talks. Linear bleed-throughs assume that these percentages are
-% constant as a function of brightness. Non-linear bleed-throughs do not.
-% If all four corrections are used, the corrections scheme becomes a
-% non-linear set of coupled equations. In this case, Newton's method is
-% used to solve the set of equations. This is not fully validated and
-% probably should have some sort of regularization to help enure that the
-% solution is a global minimum and not a local one
-
-% Non-linear corrections are done by linearly interpolating the correction
-% curves.
-
-% Background subtraction is handled one of two ways. If background levels
-% are included, then these images are averaged and subtracted from the
-% single and double labeled images. These are called bsff images. If
-% background images are not included, then the background (most likely
-% pixel in the picture) is subtracted from the image. This will not account
-% for variations in illumination. These images are named bs.
+% bleed-throughs or cross-talks. Currently accounts for only linear bleed-throughs.
+% Linear bleed-throughs assume that these percentages are
+% constant as a function of brightness.
 
 %--------------------------------------------------------------------------
 
@@ -40,6 +25,12 @@ function fret_correct(aexp,dexp,fexp,abtfn,dbtfn,varargin)
 % Updated 06/17/14 by Katheryn Rothenberg - cut out all non-linear
 %       calculations and considerations of cross-talk and dealing with
 %       background images.
+% Updated 01/20/14 by Andrew LaCroix - added G and k inputs following Chen
+%       Puhl BJ 2006 calculations for FRET efficiency and Donor molecules/
+%       Acceptor molecules. Also modified param.leave_neg call in function
+%       and file writing
+% Updated 09/30/15 by Katheryn Rothenberg - adjusted inputs and how output
+%       images are saved.
 
 %--------------------------------------------------------------------------
 
@@ -49,48 +40,38 @@ function fret_correct(aexp,dexp,fexp,abtfn,dbtfn,varargin)
 % af - base name for the acceptor channel images of a double labeled sample
 % df - base name for the donor channel images of a double labeled sample
 % fr - base name to find the FRET channel images of a double labeled sample
-% abtfn - specifies acceptor bleed-through into the FRET channel, either
-% number or file
-% dbtfn - specifies donor bleed-through into the FRET channel, either
-% number or file
-
-% params will be a structure containing a field for each of the following
-% parameters:
-% sourcefolder - specifies the folder containing all the images being
-% analyzed
-% destfolder - specifies the destination folder for the output files and
-% images
-% ocimg - if set, the program will write out the images
-% bit - specifies the bit of the image
+% abt - specifies acceptor bleed-through into the FRET channel
+% dbt - specifies donor bleed-through into the FRET channel
 % imin - the minimum intensity to allow into the output images, if either
-% acceptor or donor image is below this intensity, it will be zeroed in
-% output images
-% outname - manually specifies output name
-% double_norm - normalize to the intensity of the corrected acceptor and
-% donor images
-% donor_norm - normalize to the intensity of the corrected donor images
+%   acceptor or donor image is below this intensity, it will be zeroed in
+%   output images
+% FRETeff - tells whether FRET efficiency and donor-to-acceptor ratio should be calculated.
+% leave_neg - indicates whether to leave negative values in the images or
+%   to take them out
+% folder - specifies the folder containing all the images being analyzed
+
+% inputs that are required only if FRETeff is 'y':
+% G = G factor from Chen BJ 2006
+% k = k factor from Chen BJ 2006
 
 %--------------------------------------------------------------------------
 
 % OUTPUTS:
 
-% If ocimg is set, program writes out background subtracted version of the
-% data images as well as a corrected FRET, and a normalized FRET image.
-% Corrected FRET images are labeled c. and the normalized images are
-% normalized to the acceptor and entitled cna.
+% Corrected FRET images are labeled c_ and the normalized images are
+% normalized to the acceptor and entitled cna_ FRET efficiency values are
+% labeled eff_ and donor molecule per acceptor molecule images are labeled
+% dpa_ (Donor Per Acceptor)
 
 %--------------------------------------------------------------------------
-
+G = varargin{1};
+k = varargin{2};
 param = varargin{end};
-if ~isfield(param,'bit')
-    param.bit = 16;
-end
+bit = 16;
 
-param.bin = 1.0;
-
-af = file_search(aexp,param.sourcefolder);
-df = file_search(dexp,param.sourcefolder);
-fr = file_search(fexp,param.sourcefolder);
+af = file_search(aexp,folder);
+df = file_search(dexp,folder);
+fr = file_search(fexp,folder);
 
 % Check images found
 if isempty(af)
@@ -114,77 +95,68 @@ if length(df)~=length(fr)
     warning('Number of Donor and FRET Images Not the Same')
 end
 
-abt = double(abtfn{1});
-dbt = double(dbtfn{1});
-
 for i = 1:length(df)
     % Get fluorescent images
-    axam = double(imread(fullfile(param.sourcefolder,af{i})));
-    dxdm = double(imread(fullfile(param.sourcefolder,df{i})));
-    dxam = double(imread(fullfile(param.sourcefolder,fr{i})));
+    axam = double(imread(af{i}));
+    dxdm = double(imread(df{i}));
+    dxam = double(imread(fr{i}));
     
-    [axam, dxdm, dxam] = deover(axam,dxdm,dxam,param.bit);
+    [axam, dxdm, dxam] = deover(axam,dxdm,dxam,bit);
     
     if isfield(param,'imin')
-        [axam, dxdm, dxam] = deunder(axam,dxdm,dxam,param.imin);
+        [axam, dxdm, dxam] = deunder(axam,dxdm,dxam,imin);
     end
     
     % Following supplemental material of Chen, Puhl et al BJ Lett 2006
     iaa = axam;
     idd = dxdm;
     fc = dxam-abt.*iaa-dbt.*idd;
-    if ~isfield(param,'leave_neg')
+    
+    if strcmpi(FRETeff,'y')
+        eff = (fc./G)./(idd+(fc./G));
+        dpa = (idd+(fc./G))./(iaa.*k);
+    end
+    
+    if leave_neg == 0
         iaa(iaa<0) = 0;
         idd(idd<0) = 0;
         fc(fc<0) = 0;
+        if strcmpi(FRETeff,'y')
+            eff(eff<0) = 0;
+            dpa(dpa<0) = 0;
+        end
+    end
+    
+    % Get rid of NaN
+    iaa(isnan(iaa)) = 0;
+    idd(isnan(idd)) = 0;
+    fc(isnan(fc)) = 0;
+    if strcmpi(FRETeff,'y')
+        eff(isnan(eff)) = 0;
+        dpa(isnan(dpa)) = 0;
     end
     
     nafc = norm_fret(fc,iaa);
-    if isfield(param,'outname')
-        nfrn = ['_' param.outname fr{i}];
-        ndfn = ['_' param.outname df{i}];
-        nafn = ['_' param.outname af{i}];
-    else
-        nfrn = ['_' fr{i}];
-        ndfn = ['_' df{i}];
-        nafn = ['_' af{i}];
+    
+    % Name output images
+    iaa_name = fullfile(folder,'FRET Correct Images',['bsa_' af{i}]);
+    idd_name = fullfile(folder,'FRET Correct Images',['bsd_' df{i}]);
+    fc_name = fullfile(folder,'FRET Correct Images',['c_' fr{i}]);
+    nafc_name = fullfile(folder,'FRET Correct Images',['cna_' fr{i}]);
+    if strcmpi(FRETeff,'y')
+        eff_name = fullfile(folder,'FRET Correct Images',['eff_' fr{i}]);
+        dpa_name = fullfile(folder,'FRET Correct Images',['dpa_' fr{i}]);
     end
     
-    target_folder = fileparts([pwd '/' param.destfolder '/c' nfrn]);
-    if (not(exist(target_folder,'dir')))
-        mkdir(target_folder);
+    % Write output images
+    imwrite2tif(iaa,[],iaa_name,'single');
+    imwrite2tif(idd,[],idd_name,'single');
+    imwrite2tif(fc,[],fc_name,'single');
+    imwrite2tif(nafc,[],nafc_name,'single');
+    if strcmpi(FRETeff,'y')
+        imwrite2tif(eff,[],eff_name,'single');
+        imwrite2tif(dpa,[],dpa_name,'single');
     end
-    imwrite2tif(fc,[],fullfile(pwd,param.destfolder,['c' nfrn]),'single')
-    
-    target_folder = fileparts([pwd '/' param.destfolder '/cna' nfrn]);
-    if (not(exist(target_folder,'dir')))
-        mkdir(target_folder);
-    end
-    imwrite2tif(nafc,[],fullfile(pwd,param.destfolder,['cna' nfrn]),'single')
-    
-    if param.donor_norm
-        ndfc = norm_fret(fc,idd);
-        imwrite2tif(ndfc,fullfile(pwd,param.destfolder,['cnd' nfrn]),'single')
-    end
-    if param.double_norm
-        nandfc = norm_fret(fc,iaa,idd);
-        imwrite2tif(nandfc,fullfile(pwd,param.destfolder,['cnand' nfrn]),'single')
-    end
-    
-    if param.ocimg
-        target_folder = fileparts([pwd '/' param.destfolder '/bsd' ndfn]);
-        if (not(exist(target_folder,'dir')))
-            mkdir(target_folder);
-        end
-        imwrite2tif(idd,[],fullfile(pwd,param.destfolder,['bsd' ndfn]),'single')
-        
-        target_folder = fileparts([pwd '/' param.destfolder '/bsa' nafn]);
-        if (not(exist(target_folder,'dir')))
-            mkdir(target_folder);
-        end
-        imwrite2tif(iaa,[],fullfile(pwd,param.destfolder,['bsa' nafn]),'single')
-    end
-    
 end
 
 end

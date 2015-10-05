@@ -4,7 +4,16 @@ function filecell = file_search(exp,folder)
 
 listing = dir(folder);
 listing(1:2)=[];
+isfolder = {listing.isdir};
 files = {listing.name};
+for m = 1:length(isfolder)
+    if isfolder{m} == 1
+        sublist = dir(fullfile(folder,listing(m).name));
+        sublist(1:2) = [];
+        subfiles = {sublist.name};
+        files = [files subfiles];
+    end
+end
 
 match = regexp(files,exp);
 indi = [];
