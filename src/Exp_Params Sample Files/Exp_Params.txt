@@ -1,6 +1,5 @@
 PreParams_file = 'PreParams_60x_live.mat';
 exp_name = 'VinTSI997A_FRET';
-blob_params = [25 500 50];
 Coloc = 'n';
 FRETeff = 'y';
 segment = 'y';
@@ -17,6 +16,7 @@ FRETchannel = 'TVFRET';
 Bchannel = Achannel;
 maskchannel = 'Venus';
 BoundaryChannel = Achannel;
+blob_params = [25 500 50];
 abt = 0.31;
 dbt = 1.10;
 G = 2.95;
