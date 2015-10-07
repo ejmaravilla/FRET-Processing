@@ -21,7 +21,7 @@ i_p = inputParser;
 i_p.addRequired('parameters_file',@(x)exist(x,'file') == 2);
 i_p.addRequired('folder',@(x)exist(x,'dir') == 7);
 
-i_p.addParamValue('status_messages',false,@(x)islogical(x));
+i_p.addParamValue('status_messages',false,@(x)islogical(x)); %#ok<NVREPL>
 
 i_p.parse(parameters_file,folder);
 
@@ -36,7 +36,7 @@ count = 0;
 for channel = fieldnames(PreParams)';
     count = count+1;
     channel = channel{1};  %#ok<FXSET>
-    imgNames = file_search(['\w+' channel '.TIF'],folder);
+    imgNames = file_search(['.*w\d+' channel '.*.TIF$'],folder);
     if ~(isempty(imgNames))
         reg_x = PreParams.(channel).xshift;
         reg_y = PreParams.(channel).yshift;
