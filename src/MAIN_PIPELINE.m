@@ -12,6 +12,7 @@ clc;
 %% Read in parameters
 
 GetParams_only
+addpath(genpath(folder));
 
 %% Pre-process
 
