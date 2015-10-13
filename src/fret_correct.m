@@ -64,9 +64,11 @@ function fret_correct(aexp,dexp,fexp,abt,dbt,imin,FRETeff,leave_neg,folder,varar
 % dpa_ (Donor Per Acceptor)
 
 %--------------------------------------------------------------------------
-G = varargin{1};
-k = varargin{2};
-param = varargin{end};
+if (length(varargin) == 2)
+    G = varargin{1};
+    k = varargin{2};
+end
+
 bit = 16;
 
 af = file_search(aexp,folder);
@@ -103,7 +105,7 @@ for i = 1:length(df)
     
     [axam, dxdm, dxam] = deover(axam,dxdm,dxam,bit);
     
-    if isfield(param,'imin')
+    if exist('imin','var')
         [axam, dxdm, dxam] = deunder(axam,dxdm,dxam,imin);
     end
     
