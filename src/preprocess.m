@@ -36,7 +36,7 @@ count = 0;
 for channel = fieldnames(PreParams)';
     count = count+1;
     channel = channel{1};  %#ok<FXSET>
-    imgNames = file_search(['.*w\d+' channel '.*.TIF$'],folder);
+    imgNames = file_search(['.*w\d+.*' channel '.*.TIF$'],folder);
     if ~(isempty(imgNames))
         reg_x = PreParams.(channel).xshift;
         reg_y = PreParams.(channel).yshift;

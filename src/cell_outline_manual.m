@@ -35,4 +35,5 @@ for i = 1:length(imgs)
         end
     end
     imwrite(cells,fullfile(folder,'Cell Mask Images',['polymask_cells_' imgs{i}(1:end-4) '.png']));
+    close all;
 end

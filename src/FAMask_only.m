@@ -19,7 +19,7 @@ if strcmpi(FRETeff,'y')
 end
 imageset{end+1} = ['fa_bsa_' prefix exp_name '\w+' Bchannel '.TIF'];
 
-if ~exist(fullfile(folder,'Masked Images'),'dir')
+if isempty(file_search('masked_\w+.TIF',folder))
     mkdir(folder,'Masked Images')
     app_mask(imageset,maskchannel,folder)
 end
