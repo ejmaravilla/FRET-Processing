@@ -37,14 +37,14 @@ my @unrefed_files;
 for (@files) {
 	my $filename = basename($_);
 	if ($_ =~ /bsa_pre_(.*?)_\d+_w/) {
-		make_path("$results_dir/$1/Acceptor");
-		system("ln -s \"../../images/$filename\" \"$results_dir/$1/Acceptor/$filename\"\n");
+		make_path("$results_dir/Acceptor");
+		system("ln -s \"../images/$filename\" \"$results_dir/Acceptor/$filename\"\n");
 	} elsif ($_ =~ /bsd_pre_(.*?)_\d+_w/) {
-		make_path("$results_dir/$1/Donor");
-		system("ln -s \"../../images/$filename\" \"$results_dir/$1/Donor/$filename\"\n");
+		make_path("$results_dir/Donor");
+		system("ln -s \"../images/$filename\" \"$results_dir/Donor/$filename\"\n");
 	} elsif ($_ =~ /cna_pre_(.*?)_\d+_w/) {
-		make_path("$results_dir/$1/FRET");
-		system("ln -s \"../../images/$filename\" \"$results_dir/$1/FRET/$filename\"\n");
+		make_path("$results_dir/FRET");
+		system("ln -s \"../images/$filename\" \"$results_dir/FRET/$filename\"\n");
 	} elsif ($_ =~ /SaveParams/) {
 		#don't mark SaveParams for deletion
 	} else {
