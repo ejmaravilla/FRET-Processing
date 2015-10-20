@@ -3,6 +3,11 @@
 % function to create the cell masks.
 
 rehash
+
+if ~exist('Achannel','var')
+    Achannel = '';
+end
+
 if strcmpi(BoundaryChannel,Achannel)
     files = ['bsa_' prefix exp_name '\w+' Achannel '.TIF'];
 elseif strcmpi(BoundaryChannel,Schannel)
