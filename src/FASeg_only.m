@@ -3,7 +3,7 @@
 % and then generates focal adhesion masks based on these parameters.
 
 rehash
-if ~exist(fullfile(folder,'FA Images'),'dir')
+if isempty(file_search('fa_\w+.TIF',folder))
     mkdir(folder,'FA Images')
     if strcmpi(optimize_params,'y')
         ImageNameCell = file_search([prefix exp_name '\w+\d+\w+' Bchannel '.TIF'],folder);
