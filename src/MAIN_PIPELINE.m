@@ -2,7 +2,7 @@
 % This is a main function for running FRET or FRET Coloc Code on a single
 % experimental group. The Exp_Params text file in the folder containing the data
 % should describe all relevant information for a particular experimental design.
-% Sample Exp_params text files can be found in the Lab Google Drive.
+% Sample Exp_params text files can be found in the GitHub repository.
 
 %% Set up
 clear;
@@ -49,5 +49,6 @@ end
 if strcmpi(add_boundary_props,'y')
     AddBoundaryProps_only
 end
+
 %% Update parameters
 SaveParams_only
