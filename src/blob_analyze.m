@@ -59,7 +59,11 @@ nch = szn(2);
 nt = szn(1);
 dims = size(double(imread(imgn{1,1})));
 
-resind = 4*(nch-1)+3;
+resind = 4*(nch-1)+2;
+if strcmpi(FRETeff,'y')
+    resind = resind + 1;
+end
+
 szstr = resind+1;
 ecstr = resind+2;
 orstr = resind+3;
@@ -197,7 +201,7 @@ for i = 1:nt
     for k = 1:nch-1
         name = fullfile(folder,'Average Images',['avg_on_' maskchannel '_' imgn{i,k}]);
         imwrite2tif(starr(:,:,k),[],name,'single')
-        if k == nch-1
+        if k == nch-1 && strcmp('FRETeff','y')
             name = fullfile(folder,'Average Images',['avg_on_' maskchannel '_force_' imgn{i,k}]);
             imwrite2tif(starr(:,:,k+1),[],name,'single')
         end
