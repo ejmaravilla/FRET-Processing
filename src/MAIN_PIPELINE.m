@@ -1,17 +1,36 @@
+function MAIN_PIPELINE(varargin)
+
 %% Header
 % This is a main function for running FRET or FRET Coloc Code on a single
 % experimental group. The Exp_Params text file in the folder containing the data
 % should describe all relevant information for a particular experimental design.
 % Sample Exp_params text files can be found in the GitHub repository.
 
-%% Set up
-clear;
-close all;
-clc;
+%% Parameter Processing
+% Check to see if 
+
+if (not(isempty(varargin)))
+    if (exist(varargin{1},'dir'))
+        folder = varargin{1};
+    else
+        error('Expected first parameter to be a folder with images to process.');
+    end
+else
+    %% Set up
+    clear;
+    close all;
+    clc;
+end
 
 %% Read in parameters
 
-GetParams_only
+if (exist('folder','var'))
+    [~,params_file] = GetParamsFile(folder); %#ok<ASGLU>
+    ProcessParamsFile;
+else
+    [folder,params_file] = GetParamsFile; %#ok<ASGLU>
+    ProcessParamsFile;
+end
 
 %% Pre-process
 
