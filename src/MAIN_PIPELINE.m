@@ -26,11 +26,10 @@ end
 
 if (exist('folder','var'))
     [~,params_file] = GetParamsFile(folder); %#ok<ASGLU>
-    ProcessParamsFile;
 else
     [folder,params_file] = GetParamsFile; %#ok<ASGLU>
-    ProcessParamsFile;
 end
+ProcessParamsFile;
 
 %% Pre-process
 
