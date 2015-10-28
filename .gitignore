@@ -1,4 +1,4 @@
 results/*
 doc
 data/*
-src/PreParams
+src/PreParams*.mat
