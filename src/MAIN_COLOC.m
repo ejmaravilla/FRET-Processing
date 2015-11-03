@@ -17,8 +17,8 @@ GetParams_only
 
 PreProcess_only
 
-%% Segmentation
-if strcmpi(segment,'y')
+%% segmentation
+if strcmpi(segmentation,'y')
     if strcmpi(structure,'FA')
         FASeg_Coloc_only
     end
@@ -26,13 +26,13 @@ end
 
 %% Mask Images
 if strcmpi(mask,'y')
-    if strcmpi(structure,'FA') && strcmpi(segment,'y')
+    if strcmpi(structure,'FA') && strcmpi(segmentation,'y')
         FAMask_Coloc_only
     end
 end
 
 %% Blob Analysis
-if strcmpi(segment,'y') && strcmpi(banalyze,'y')
+if strcmpi(segmentation,'y') && strcmpi(banalyze,'y')
     BlobAnalyze_Coloc_only
 end
 

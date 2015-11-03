@@ -1,7 +1,7 @@
 PreParams_file = 'PreParams_60x_fixed.mat';
 exp_name = 'WT_VaspTRVinCy5';
 FRETeff = 'n';
-segment = 'y';
+segmentation = 'y';
 structure = 'FA';
 optimize_params = 'n';
 banalyze = 'y';
