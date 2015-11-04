@@ -7,14 +7,22 @@ banalyze = 'n';
 mask = 'n';
 draw_boundaries = 'n';
 add_boundary_props = 'n';
+
+%Channel Information
 Achannel = 'Venus';
 Dchannel = 'Teal';
 FRETchannel = 'TVFRET';
 blob_params = [25 500 50];
+
+%Bleedthrough
 abt = 0.18;
 dbt = 0.94;
-G = 2.65;
+
+%FRET Efficiency Parameters
+FRETeff = 'y'
+G = 2.95;
 k = 0.45; % preliminary value!
+
 venus_thres = 100;
 leave_neg = 1;
 prefix = 'pre_';

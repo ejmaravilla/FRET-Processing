@@ -1,5 +1,6 @@
-PreParams_file = 'PreParams_60x_fixed.mat';
+PreParams_file = 'PreParams_60x_live.mat';
 exp_name = 'EzrTS_FRET';
+
 Coloc = 'n';
 FRETeff = 'n';
 segmentation = 'n';
@@ -7,14 +8,24 @@ banalyze = 'n';
 mask = 'n';
 draw_boundaries = 'n';
 add_boundary_props = 'n';
+
+%Channel Information
 Achannel = 'Venus';
 Dchannel = 'Teal';
 FRETchannel = 'TVFRET';
+
 blob_params = [25 500 50];
+
+%Bleedthrough
 abt = 0.19;
 dbt = 1.03;
+
+%FRET Efficiency Parameters
+FRETeff = 'y'
 G = 2.95;
 k = 0.45; % preliminary value!
+
+
 venus_thres = 100;
 leave_neg = 1;
 prefix = 'pre_';
