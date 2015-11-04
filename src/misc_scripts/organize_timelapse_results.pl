@@ -49,25 +49,37 @@ my @unrefed_files;
 for (@files) {
 	my $filename = basename($_);
 	if ($_ =~ /bsa_pre_(.*?)_w.*_s(\d+)_t\d+/) {
-		my $target_folder = "$results_dir/$1/$2/Acceptor";
+		my $target_folder = "$results_dir/$2/Acceptor";
 		make_path($target_folder);
-		system("ln -s \"../../../images/$filename\" \"$target_folder/$filename\"\n");
+		system("ln -s \"../../images/$filename\" \"$target_folder/$filename\"\n");
 	} elsif ($_ =~ /cna_pre_(.*?)_w.*_s(\d+)_t\d+/) {
-		my $target_folder = "$results_dir/$1/$2/FRET";
+		my $target_folder = "$results_dir/$2/FRET";
 		make_path("$target_folder");
-		system("ln -s \"../../../images/$filename\" \"$target_folder/$filename\"\n");
+		system("ln -s \"../../images/$filename\" \"$target_folder/$filename\"\n");
 	} elsif ($_ =~ /bsd_pre_(.*?)_w.*_s(\d+)_t\d+/) {
-		my $target_folder = "$results_dir/$1/$2/Donor";
+		my $target_folder = "$results_dir/$2/Donor";
 		make_path("$target_folder");
-		system("ln -s \"../../../images/$filename\" \"$target_folder/$filename\"\n");
+		system("ln -s \"../../images/$filename\" \"$target_folder/$filename\"\n");
 	} elsif ($_ =~ /pre_(.*?)_w.*FWTR_s(\d+)_t\d+/) {
-		my $target_folder = "$results_dir/$1/$2/Cherry";
+		my $target_folder = "$results_dir/$2/Cherry";
 		make_path("$target_folder");
-		system("ln -s \"../../../images/$filename\" \"$target_folder/$filename\"\n");
+		system("ln -s \"../../images/$filename\" \"$target_folder/$filename\"\n");
 	} elsif ($filename =~ /(.*?)_w.*DIC_s(\d+)_t\d+/) {
-		my $target_folder = "$results_dir/$1/$2/DIC";
+		my $target_folder = "$results_dir/$2/DIC";
 		make_path("$target_folder");
-		system("ln -s \"../../../images/$filename\" \"$target_folder/$filename\"\n");
+		system("ln -s \"../../images/$filename\" \"$target_folder/$filename\"\n");
+	} elsif ($filename =~ /(.*?)_w.*BF_s(\d+)_t\d+/) {
+		my $target_folder = "$results_dir/$2/BF";
+		make_path("$target_folder");
+		system("ln -s \"../../images/$filename\" \"$target_folder/$filename\"\n");
+	} elsif ($_ =~ /dpa_pre_(.*?)_w.*_s(\d+)_t\d+/) {
+		my $target_folder = "$results_dir/$2/DPA";
+		make_path("$target_folder");
+		system("ln -s \"../../images/$filename\" \"$target_folder/$filename\"\n");
+	} elsif ($_ =~ /eff_pre_(.*?)_w.*_s(\d+)_t\d+/) {
+		my $target_folder = "$results_dir/$2/Efficiency";
+		make_path("$target_folder");
+		system("ln -s \"../../images/$filename\" \"$target_folder/$filename\"\n");
 	} elsif ($_ =~ /SaveParams/) {
 		#don't mark SaveParams for deletion
 	} else {
