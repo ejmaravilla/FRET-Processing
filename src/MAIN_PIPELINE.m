@@ -7,7 +7,8 @@ function MAIN_PIPELINE(varargin)
 % Sample Exp_params text files can be found in the GitHub repository.
 
 %% Parameter Processing
-% Check to see if 
+% Check to see if anything has been passed as parameter, if anything has
+% been passed, make sure it is a folder.
 
 if (not(isempty(varargin)))
     if (exist(varargin{1},'dir'))
@@ -22,7 +23,7 @@ else
     clc;
 end
 
-%% Read in parameters
+%% Read in Pre-processing parameters
 
 if (exist('folder','var'))
     [~,params_file] = GetParamsFile(folder); %#ok<ASGLU>
