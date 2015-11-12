@@ -1,4 +1,4 @@
-function MAIN_COLOC_mods(varargin)
+function MAIN_COLOC(varargin)
 
 %% Header
 % This is a main function for running Coloc Code on a single
