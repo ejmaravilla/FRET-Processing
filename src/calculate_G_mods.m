@@ -3,7 +3,15 @@ function calculate_G_mods(FRETpair,linker,n)
 %G-factor from donor (bsd) acceptor (bsa) and corrected FRET (cna)
 %images based on analysis from Chen et al. Biophysical Journal 2006
 
-GetParams_only
+%% Read in Pre-processing parameters
+
+if (exist('folder','var'))
+    [~,params_file] = GetParamsFile(folder); %%#ok<ASGLU>
+else
+    [folder,params_file] = GetParamsFile; %%#ok<ASGLU>
+end
+ProcessParamsFile;
+
 
 %% Output data on bsd, bsa, cna, c, dpa from TSMod Data
 % Calculations for first dataset
@@ -80,7 +88,12 @@ for i = 1:length(bsd_names1)
         imwrite(cells,fullfile(folder,['polymask_cells_' bsa_names1{i}(1:end-4) '.png']));
     elseif strcmpi(pre_exist,'y')
         %         Read in old cell masks
-        polycells = imread(fullfile(folder,'Cell Mask Images',['polymask_cells_' bsa_names1{i}(1:end-4) '.png']));
+        if ~isempty(file_search('\w+Cy5.TIF',folder))
+            cell_names = file_search('pre\w+Cy5.TIF',folder);
+            polycells = imread(fullfile(folder,'Cell Mask Images',['polymask_cells_' cell_names{i}(1:end-4) '.png']));
+        else
+            polycells = imread(fullfile(folder,'Cell Mask Images',['polymask_cells_' bsa_names1{i}(1:end-4) '.png']));
+        end
         cells = bwlabel(polycells);
     end
     % Apply mask to donor, acceptor, and corrected FRET images (also get
