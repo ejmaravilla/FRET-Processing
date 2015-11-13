@@ -74,7 +74,9 @@ res = zeros(1,resind+5);
 col_labels = cell(1,resind+5);
 sres = [];
 
-lookup = load('freteff_force_lookup.txt');
+if strcmpi(FRETeff,'y')
+    lookup = load('freteff_force_lookup.txt');
+end
 
 for i = 1:nt
     starr = zeros(dims(1),dims(2),nch-1);
