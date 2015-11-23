@@ -1,4 +1,4 @@
-function calculate_G_mods(FRETpair,linker,n)
+function calculate_G_mods(FRETpair,linker,n,date)
 %Use the output from this code to calculate_G calculates the
 %G-factor from donor (bsd) acceptor (bsa) and corrected FRET (cna)
 %images based on analysis from Chen et al. Biophysical Journal 2006
@@ -164,12 +164,14 @@ headers = {'CNA'...
     'FRET Pair'...
     'Linker'...
     'n'...
-    'Linker Length (AAs)'};
+    'Linker Length (AAs)'...
+    'Date'};
 outdata1 = num2cell(outdata1);
 [ncells,~] = size(outdata1);
 FRETpairText = repmat(cellstr(FRETpair),ncells,1);
 linkerText = repmat(cellstr(linker),ncells,1);
 nText = num2cell(repmat(n,ncells,1));
+dateText = repmat(cellstr(date),ncells,1);
 if strcmpi(FRETpair,'tTV') || strcmpi(FRETpair,'tCR')
     if strcmpi(linker,'GGS')
         LinkerLengthText = num2cell(repmat(6*n,ncells,1));
@@ -183,7 +185,7 @@ elseif strcmpi(FRETpair,'TV') || strcmpi(FRETpair,'CR')
         LinkerLengthText = num2cell(repmat(5*n + 13,ncells,1));
     end
 end
-outdata1 = horzcat(outdata1,FRETpairText,linkerText,nText,LinkerLengthText);
+outdata1 = horzcat(outdata1,FRETpairText,linkerText,nText,LinkerLengthText,dateText);
 outdata1 = vertcat(headers,outdata1);
-xlswrite(fullfile(folder,['ModData_headers_' FRETpair '_' linker num2str(n) '.xlsx']),outdata1)
+xlswrite(fullfile(folder,['ModData_headers_' date '_' FRETpair '_' linker num2str(n) '.xlsx']),outdata1)
 rmpath(folder);
