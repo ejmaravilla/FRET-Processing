@@ -1,4 +1,4 @@
-PreParams_file = 'PreParams_60x_fixed.mat';
+PreParams_file = 'PreParams_60x_fixed_111215.mat';
 exp_name = 'tCRTS';
 Coloc = 'n';
 FRETeff = 'y';
@@ -19,8 +19,8 @@ BoundaryChannel = Achannel;
 blob_params = [25 300 30];
 abt = 0.09;
 dbt = 0.07;
-G = 0.243;
-k = 2.07;
+G = 0.237;
+k = 2.10;
 venus_thres = 100;
 leave_neg = 1;
 prefix = 'pre_';
