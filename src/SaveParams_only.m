@@ -7,10 +7,4 @@ if exist('cell_thresh','var')
     fprintf(fid,'\ncell_thresh = %d;',cell_thresh*10000);
 end
 fclose(fid);
-rmpath(folder)
-rmpath(fullfile(folder,'Average Images'))
-rmpath(fullfile(folder,'Cell Mask Images'))
-rmpath(fullfile(folder,'FA Images'))
-rmpath(fullfile(folder,'FRET Correct Images'))
-rmpath(fullfile(folder,'Masked Images'))
-rmpath(fullfile(folder,'Preprocessed Images'))
+rmpath(genpath(folder))
