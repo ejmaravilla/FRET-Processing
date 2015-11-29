@@ -54,6 +54,7 @@ if strcmpi(mask,'y')
     if strcmpi(structure,'FA') && strcmpi(segmentation,'y')
         FAMask_only
     elseif strcmpi(structure,'JXN') && strcmpi(segmentation,'y')
+        JXNMask_only
     end
 end
 
