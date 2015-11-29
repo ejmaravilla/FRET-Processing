@@ -44,6 +44,8 @@ FRET_only
 if strcmpi(segmentation,'y')
     if strcmpi(structure,'FA')
         FASeg_only
+    elseif strcmpi(structure,'JXN')
+        JXNSeg_only
     end
 end
 
@@ -51,6 +53,7 @@ end
 if strcmpi(mask,'y')
     if strcmpi(structure,'FA') && strcmpi(segmentation,'y')
         FAMask_only
+    elseif strcmpi(structure,'JXN') && strcmpi(segmentation,'y')
     end
 end
 
