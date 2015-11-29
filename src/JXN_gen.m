@@ -23,5 +23,9 @@ for i = 1:length(afiles)
     end
     close;
     thresh = 300;
+    inds = find(mask > 0);
+    for j = 1:length(inds)
+        mask(inds(j)) = j;
+    end
     imwrite2tif(mask,[],fullfile(folder,'JXN Images',['JXN_' afiles{i}]),'single');
 end
