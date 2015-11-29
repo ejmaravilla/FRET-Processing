@@ -1,4 +1,4 @@
-function JXN_analyze(bases,FRETeff,outname,folder)
+function JXN_analyze(bases,FRETeff,sizemin,sizemax,outname,folder)
 
 imgn = imgn_check(bases,folder);
 szn = size(imgn);
