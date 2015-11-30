@@ -59,8 +59,12 @@ if strcmpi(mask,'y')
 end
 
 %% Blob Analysis
-if strcmpi(segmentation,'y') && strcmpi(banalyze,'y')
-    BlobAnalyze_only
+if strcmpi(segmentation,'y') && strcmpi(banalyze,'y') 
+    if strcmpi(structure,'JXN')
+        JXNAnalyze_only
+    else
+        BlobAnalyze_only
+    end
 end
 
 %% Draw Boundaries
