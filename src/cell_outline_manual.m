@@ -7,7 +7,8 @@ for i = 1:length(imgs)
     % Read in image + median filter
     im = single(imread(imgs{i}));
     % Autothreshold for viewing 1% overexposed
-    viewthresh = quantile(im(:),0.99);
+%     viewthresh = quantile(im(:),0.99);
+    viewthresh = 5000;
     % Show image and select cells
     [im_w, im_h] = size(im);
     figure; imagesc(im,[0 viewthresh]);
