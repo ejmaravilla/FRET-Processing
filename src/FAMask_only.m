@@ -17,7 +17,11 @@ imageset{end+1} = ['cna_' prefix exp_name '\w+' FRETchannel '.TIF'];
 if strcmpi(FRETeff,'y')
     imageset{end+1} = ['eff_' prefix exp_name '\w+' FRETchannel '.TIF'];
 end
-imageset{end+1} = ['fa_bsa_' prefix exp_name '\w+' Bchannel '.TIF'];
+if strcmpi(Bchannel,Achannel)
+    imageset{end+1} = ['fa_bsa_' prefix exp_name '\w+' Bchannel '.TIF'];
+else
+    imageset{end+1} = ['fa_' prefix exp_name '\w+' Bchannel '.TIF'];
+end
 
 if isempty(file_search('masked_\w+.TIF',folder))
     mkdir(folder,'Masked Images')

@@ -19,6 +19,10 @@ if isempty(file_search('fa_\w+.TIF',folder))
         end
         blob_params = round(mean(Values));
     end
-    fa_gen(['bsa_' prefix exp_name '\w+' Bchannel '.TIF'],blob_params,folder)
+    if strcmpi(Bchannel,Achannel)
+        fa_gen(['bsa_' prefix exp_name '\w+' Bchannel '.TIF'],blob_params,folder)
+    else
+        fa_gen([prefix exp_name '\w+' Bchannel '.TIF'],blob_params,folder)
+    end
 end
 addpath(fullfile(folder,'FA Images'))
