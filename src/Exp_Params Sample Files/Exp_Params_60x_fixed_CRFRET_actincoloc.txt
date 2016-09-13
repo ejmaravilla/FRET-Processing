@@ -1,4 +1,4 @@
-PreParams_file = 'PreParams_60x_fixed_111215.mat';
+PreParams_file = 'PreParams_60x_fixed_082316.mat';
 exp_name = 'tCRTS_Actin';
 Coloc = 'y';
 FRETeff = 'y';
@@ -19,7 +19,7 @@ maskchannel = Achannel;
 BoundaryChannel = Schannel;
 blob_params = [25 300 30];
 abt = 0.09;
-dbt = 0.07;
+dbt = 0.09;
 G = 0.237;
 k = 2.10;
 venus_thres = 100;

@@ -1,4 +1,4 @@
-PreParams_file = 'PreParams_60x_fixed.mat';
+PreParams_file = 'PreParams_60x_fixed_082316.mat';
 exp_name = 'EzrTS_FRET';
 Coloc = 'n';
 FRETeff = 'n';
@@ -16,7 +16,7 @@ blob_params = [25 500 50];
 
 %Bleedthrough
 abt = 0.18;
-dbt = 0.94;
+dbt = 0.93;
 
 %FRET Efficiency Parameters
 FRETeff = 'y'

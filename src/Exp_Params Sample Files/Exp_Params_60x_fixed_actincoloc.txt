@@ -1,4 +1,4 @@
-PreParams_file = 'PreParams_60x_fixed.mat';
+PreParams_file = 'PreParams_60x_fixed_082316.mat';
 exp_name = 'VinTS_FRET';
 Coloc = 'y';
 FRETeff = 'y';
@@ -18,8 +18,8 @@ maskchannel = Achannel;
 Schannel = 'Cy5';
 BoundaryChannel = 'Cy5';
 blob_params = [25 500 50];
-abt = 0.28;
-dbt = 0.94;
+abt = 0.26;
+dbt = 0.97;
 G = 2.65;
 k = 0.68;
 venus_thres = 100;

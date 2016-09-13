@@ -1,4 +1,4 @@
-PreParams_file = 'PreParams_60x_live_082316.mat';
+PreParams_file = 'PreParams_60x_live.mat';
 exp_name = 'EzrTS_FRET';
 
 Coloc = 'n';
