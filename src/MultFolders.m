@@ -5,4 +5,4 @@ folders = {info.name};
 for i = 1:length(folders)
     test_folder = fullfile(main_folder,folders{i});
     MAIN_PIPELINE(test_folder)
-end
+end 

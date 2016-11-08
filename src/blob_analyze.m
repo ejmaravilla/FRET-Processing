@@ -75,7 +75,7 @@ col_labels = cell(1,resind+5);
 sres = [];
 
 if strcmpi(FRETeff,'y')
-    lookup = load('freteff_force_lookup.txt');
+    lookup = load('freteff_force_lookup_model.txt');
 end
 
 for i = 1:nt
@@ -131,7 +131,7 @@ for i = 1:nt
                 col_labels{2*(nch-1)+2*(k-1)+4} = [bases{k}(1:3) ' STD'];
             end
             if k == nch-1 && strcmpi(FRETeff,'y')
-                effs = res(2*(nch-1)+2*(k-1)+4);
+                effs = res(2*(nch-1)+2*(k-1)+3);
                 forces = zeros(1,length(effs));
                 for m = 1:length(effs)
                     if effs(m) < min(lookup(:,1))
@@ -139,7 +139,7 @@ for i = 1:nt
                     elseif effs(m) > max(lookup(:,1))
                         effs(m) = max(lookup(:,1));
                     end
-                    forces(m) = lookup(round(effs(m),4) == lookup(:,1),2);
+                    forces(m) = lookup(round(effs(m),4) == lookup(:,1),2); 
                 end
                 res(2*(nch-1)+2*(k-1)+5) = forces;
                 if i == 1
