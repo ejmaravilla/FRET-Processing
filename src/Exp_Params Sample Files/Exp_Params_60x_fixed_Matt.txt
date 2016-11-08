@@ -19,7 +19,7 @@ abt = 0.18;
 dbt = 0.93;
 
 %FRET Efficiency Parameters
-FRETeff = 'y'
+FRETeff = 'y';
 G = 2.95;
 k = 0.45; % preliminary value!
 
