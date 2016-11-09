@@ -130,10 +130,10 @@ for i = 1:length(df)
             tempeff(tempeff > max(ftable(:,1))) = max(ftable(:,1));
             force = zeros(r,c);
             ext = zeros(r,c);
-            for k = 1:numel(tempeff)
-                if tempeff(k) ~= 0 && ~isnan(tempeff(k))
-                    force(k) = ftable(round(tempeff(k),4) == ftable(:,1),2);
-                    ext(k) = etable(round(tempeff(k),4) == etable(:,1),2);
+            for j = 1:numel(tempeff)
+                if tempeff(j) ~= 0 && ~isnan(tempeff(j))
+                    force(j) = ftable(round(tempeff(j),4) == ftable(:,1),2);
+                    ext(j) = etable(round(tempeff(j),4) == etable(:,1),2);
                 end
             end
         end
