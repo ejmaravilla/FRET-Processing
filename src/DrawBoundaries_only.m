@@ -24,6 +24,8 @@ if isempty(file_search('polymask_\w+',folder))
         cell_thresh = cell_outline_auto(files,1000,folder);
     elseif strcmpi(manual_or_auto,'semiauto')
         cell_outline_semiauto(files,75,folder);
+    elseif strcmpi(manual_or_auto,'semiauto1')
+        cell_outline_semiauto1(files,0,folder);
     end
 end
 
