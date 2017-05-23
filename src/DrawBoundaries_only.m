@@ -26,6 +26,8 @@ if isempty(file_search('polymask_\w+',folder))
         cell_outline_semiauto(files,75,folder);
     elseif strcmpi(manual_or_auto,'semiauto1')
         cell_outline_semiauto1(files,0,folder);
+    elseif strcmpi(manual_or_auto,'polymanual')
+        cell_outline_polymanual(files,folder);
     end
 end
 

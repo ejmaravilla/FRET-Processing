@@ -1,4 +1,4 @@
-function MAIN_PIPELINE(varargin)
+function MAIN_PIPELINE_force(varargin)
 
 %% Header
 % This is a main function for running FRET or FRET Coloc Code on a single
@@ -78,4 +78,4 @@ if strcmpi(add_boundary_props,'y')
 end
 
 %% Update parameters
-SaveParams_only
+% SaveParams_only
