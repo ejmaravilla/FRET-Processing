@@ -48,8 +48,10 @@ for channel = fieldnames(PreParams)';
         if (i_p.Results.status_messages)
             fprintf('Starting on channel %s.\n',channel);
         end
-        
-        for j = 1:length(imgNames)
+        % Evan - moved these outside loop to implement parfor 5/24/17
+        params.bin = 1;
+        params.nozero = 0;
+        parfor j = 1:length(imgNames)
             %Load images
             img = single(imread(fullfile(folder,imgNames{j})));
             %Darkfield subtraction before registration
@@ -69,8 +71,6 @@ for channel = fieldnames(PreParams)';
                 %Avg shade corrections both previously registered, radially corrected and cropped
                 img = img./shade;
                 %Background subtraction
-                params.bin = 1;
-                params.nozero = 0;
                 if n ==2
                     img = bs_ff(img,params);
                 else

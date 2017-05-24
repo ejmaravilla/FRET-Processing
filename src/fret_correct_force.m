@@ -101,7 +101,9 @@ if length(df)~=length(fr)
     warning('Number of Donor and FRET Images Not the Same')
 end
 
-for i = 1:length(df)
+% Evan - added parfor looop and shifted some code 5/24/17
+imin_toggle = exist('imin','var');
+parfor i = 1:length(df)
     % Get fluorescent images
     axam = double(imread(af{i}));
     dxdm = double(imread(df{i}));
@@ -109,7 +111,7 @@ for i = 1:length(df)
     
     [axam, dxdm, dxam] = deover(axam,dxdm,dxam,bit);
     
-    if exist('imin','var')
+    if imin_toggle %exist('imin','var')
         [axam, dxdm, dxam] = deunder(axam,dxdm,dxam,imin);
     end
     
